@@ -10,6 +10,10 @@ import { EmployeeDetailPage } from './features/employees/pages/EmployeeDetailPag
 import { EmployeeEditPage } from './features/employees/pages/EmployeeEditPage'
 import { EmployeesPage } from './features/employees/pages/EmployeesPage'
 import { ProfilePage } from './features/employees/pages/ProfilePage'
+import { CandidateCreatePage } from './features/recruitment/pages/CandidateCreatePage'
+import { CandidateDetailPage } from './features/recruitment/pages/CandidateDetailPage'
+import { CandidateEditPage } from './features/recruitment/pages/CandidateEditPage'
+import { CandidatesPage } from './features/recruitment/pages/CandidatesPage'
 import { JobCreatePage } from './features/recruitment/pages/JobCreatePage'
 import { JobDetailPage } from './features/recruitment/pages/JobDetailPage'
 import { JobEditPage } from './features/recruitment/pages/JobEditPage'
@@ -68,6 +72,24 @@ function App() {
               <Route
                 path="recruitment/jobs/:id/edit"
                 element={<RequirePermission permission="recruitment:write"><JobEditPage /></RequirePermission>}
+              />
+
+              {/* Recruitment: candidates (separate from employees). */}
+              <Route
+                path="recruitment/candidates"
+                element={<RequirePermission permission="recruitment:read"><CandidatesPage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/candidates/new"
+                element={<RequirePermission permission="recruitment:write"><CandidateCreatePage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/candidates/:id"
+                element={<RequirePermission permission="recruitment:read"><CandidateDetailPage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/candidates/:id/edit"
+                element={<RequirePermission permission="recruitment:write"><CandidateEditPage /></RequirePermission>}
               />
             </Route>
 

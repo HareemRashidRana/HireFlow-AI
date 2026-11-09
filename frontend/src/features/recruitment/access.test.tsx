@@ -48,10 +48,14 @@ describe('sidebar navigation by role', () => {
   const navLabels = () =>
     [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')].map((a) => a.textContent?.trim())
 
-  it.each(['admin', 'hr_manager', 'recruiter'] as const)('%s sees Employees and Jobs', (role: UserRole) => {
+  it.each(['admin', 'hr_manager', 'recruiter'] as const)('%s sees Employees, Jobs and Candidates', (role: UserRole) => {
     renderAs(<Sidebar />, { role })
-    expect(navLabels()).toContain('Employees')
-    expect(navLabels()).toContain('Jobs')
+    expect(navLabels()).toEqual(expect.arrayContaining(['Employees', 'Jobs', 'Candidates']))
+  })
+
+  it('the Candidates link goes to the candidate directory', () => {
+    renderAs(<Sidebar />, { role: 'recruiter' })
+    expect(screen.getByRole('link', { name: 'Candidates' }).getAttribute('href')).toBe('/recruitment/candidates')
   })
 
   it('the Jobs link goes to the jobs list', () => {
@@ -60,7 +64,7 @@ describe('sidebar navigation by role', () => {
     expect(jobs.getAttribute('href')).toBe('/recruitment/jobs')
   })
 
-  it('employees do not see Jobs (or Employees); they only get their own profile', () => {
+  it('employees do not see Jobs, Candidates or Employees; they only get their own profile', () => {
     renderAs(<Sidebar />, { role: 'employee' })
     expect(navLabels()).toEqual(['My profile'])
   })

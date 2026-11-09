@@ -13,6 +13,7 @@ export type Permission =
   | 'recruitment:read'
   | 'recruitment:write'
   | 'recruitment:delete'
+  | 'candidates:delete'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -22,6 +23,9 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   'recruitment:read': ['admin', 'hr_manager', 'recruiter'], // view jobs
   'recruitment:write': ['admin', 'hr_manager', 'recruiter'], // create, edit, change job status
   'recruitment:delete': ['admin'], // delete draft jobs
+  // Candidates use recruitment:read / recruitment:write for viewing and editing. Deleting one is
+  // wider than deleting a job (HR handles data corrections) but still not open to recruiters.
+  'candidates:delete': ['admin', 'hr_manager'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {

@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import computed_field, model_validator
+from pydantic import Field, computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
@@ -49,6 +49,11 @@ class Settings(BaseSettings):
     LOGIN_MAX_FAILED_ATTEMPTS: int = 5  # per account, within the window -> temporary lockout
     LOGIN_IP_MAX_FAILED_ATTEMPTS: int = 30  # per client IP, within the window -> rate limited
     LOGIN_LOCKOUT_MINUTES: int = 15
+
+    # --- Recruitment privacy ---
+    # How long candidate data is kept after the candidate's last meaningful activity before it
+    # becomes due for review/erasure. Default 12 months; configurable per deployment.
+    CANDIDATE_RETENTION_MONTHS: int = Field(default=12, ge=1, le=120)
 
     @computed_field  # type: ignore[prop-decorator]
     @property
