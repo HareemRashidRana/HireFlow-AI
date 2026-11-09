@@ -5,7 +5,7 @@ import type {
   EmployeeListParams,
   EmployeeUpdate,
 } from '../types/employee'
-import { request } from './client'
+import { request } from './http'
 
 function toQuery(params: EmployeeListParams): string {
   const search = new URLSearchParams()
@@ -22,6 +22,9 @@ export const employeesApi = {
 
   get: (id: string, signal?: AbortSignal) =>
     request<Employee>(`/employees/${encodeURIComponent(id)}`, { signal }),
+
+  /** The employee record linked to the signed-in user (404 if none is linked). */
+  getMine: (signal?: AbortSignal) => request<Employee>('/employees/me', { signal }),
 
   create: (data: EmployeeCreate) =>
     request<Employee>('/employees', { method: 'POST', json: data }),

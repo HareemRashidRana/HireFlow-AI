@@ -1,0 +1,36 @@
+import type { AuthUser, UserRole } from '../types/auth'
+
+/**
+ * What each role may do. This MIRRORS the rules enforced by the backend (app/api/v1/employees.py
+ * and users.py). It only decides what the UI shows: the server is the authority and re-checks every
+ * request, so hiding a button is a convenience, never a security control.
+ */
+export type Permission = 'employees:read' | 'employees:write' | 'employees:delete' | 'users:manage'
+
+const GRANTS: Record<Permission, readonly UserRole[]> = {
+  'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
+  'employees:write': ['admin', 'hr_manager'], // create and edit
+  'employees:delete': ['admin'],
+  'users:manage': ['admin'],
+}
+
+export function can(user: AuthUser | null, permission: Permission): boolean {
+  return user !== null && GRANTS[permission].includes(user.role)
+}
+
+export const roleLabels: Record<UserRole, string> = {
+  admin: 'Administrator',
+  hr_manager: 'HR Manager',
+  recruiter: 'Recruiter',
+  employee: 'Employee',
+}
+
+/** Where a signed-in user lands: staff see the directory, employees see their own record. */
+export function homePath(user: AuthUser): string {
+  return can(user, 'employees:read') ? '/employees' : '/profile'
+}
+
+/** Only follow in-app paths ("/employees"), never "//evil.com" or "https://...". */
+export function safeInternalPath(path: unknown): string | null {
+  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('//') ? path : null
+}

@@ -1,25 +1,56 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './auth/AuthProvider'
+import { HomeRedirect, PublicOnly, RequireAuth, RequirePermission } from './auth/guards'
 import { AppShell } from './components/layout/AppShell'
 import { ToastProvider } from './components/ui/Toast'
+import { ChangePasswordPage } from './features/auth/ChangePasswordPage'
+import { LoginPage } from './features/auth/LoginPage'
 import { EmployeeCreatePage } from './features/employees/pages/EmployeeCreatePage'
 import { EmployeeDetailPage } from './features/employees/pages/EmployeeDetailPage'
 import { EmployeeEditPage } from './features/employees/pages/EmployeeEditPage'
 import { EmployeesPage } from './features/employees/pages/EmployeesPage'
+import { ProfilePage } from './features/employees/pages/ProfilePage'
 
 function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route index element={<Navigate to="/employees" replace />} />
-            <Route path="employees" element={<EmployeesPage />} />
-            <Route path="employees/new" element={<EmployeeCreatePage />} />
-            <Route path="employees/:id" element={<EmployeeDetailPage />} />
-            <Route path="employees/:id/edit" element={<EmployeeEditPage />} />
-            <Route path="*" element={<Navigate to="/employees" replace />} />
-          </Route>
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
+
+            {/* Signed in, but allowed while a password change is pending */}
+            <Route
+              path="/change-password"
+              element={<RequireAuth allowPasswordChange><ChangePasswordPage /></RequireAuth>}
+            />
+
+            {/* Signed in */}
+            <Route element={<RequireAuth><AppShell /></RequireAuth>}>
+              <Route index element={<HomeRedirect />} />
+              <Route path="profile" element={<ProfilePage />} />
+
+              {/* Role-restricted. The API enforces the same rules; these just show a clear message. */}
+              <Route
+                path="employees"
+                element={<RequirePermission permission="employees:read"><EmployeesPage /></RequirePermission>}
+              />
+              <Route
+                path="employees/new"
+                element={<RequirePermission permission="employees:write"><EmployeeCreatePage /></RequirePermission>}
+              />
+              {/* Everyone may open this route; the server only returns the caller's own record to employees. */}
+              <Route path="employees/:id" element={<EmployeeDetailPage />} />
+              <Route
+                path="employees/:id/edit"
+                element={<RequirePermission permission="employees:write"><EmployeeEditPage /></RequirePermission>}
+              />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
       </ToastProvider>
     </BrowserRouter>
   )

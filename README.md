@@ -2,12 +2,13 @@
 
 > AI-assisted HR Management System: recruitment, employee records, leave and attendance, in one full-stack app.
 
-**Status:** Phase 1 (project foundation). Planning only, with no application code yet.
+**Status:** Employee Management and Authentication/RBAC are built. Recruitment, leave, attendance, AI screening and dashboards are planned (see [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)).
 
-## Features (planned)
+## Features
 
-- **Auth and roles:** JWT login with Admin, HR Manager, Recruiter and Employee roles
-- **Employees:** profiles, departments, positions, documents
+- **Auth and roles (built):** login with Admin, HR Manager, Recruiter and Employee roles; account lockout and rate limiting; rotating refresh tokens
+- **Employees (built):** directory, profiles, create/edit/delete, manager hierarchy
+- **Departments (planned):** proper department records
 - **Recruitment:** job postings, candidate pipeline, interview scheduling
 - **AI screening:** resume parsing and candidate-to-job match scoring
 - **Leave and attendance:** requests, approvals, balances
@@ -20,9 +21,9 @@
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, React Hook Form + Zod |
 | Backend | Python 3.12, FastAPI, SQLAlchemy 2.0, Alembic, Pydantic v2 |
 | Database | PostgreSQL 16 |
-| Auth | JWT (access and refresh), bcrypt password hashing |
+| Auth | Short-lived JWT access token held in memory, rotating refresh token in an HttpOnly cookie (reuse detection), Argon2id password hashing |
 | AI | Resume parsing (pdfplumber/python-docx) plus an LLM or embedding provider behind a service interface |
-| Testing | pytest + httpx (backend), Vitest + Testing Library (frontend) |
+| Testing | pytest + httpx (backend), Vitest (frontend logic tests) |
 | Tooling | ESLint, Prettier, Ruff, pre-commit, GitHub Actions, Docker Compose |
 
 ## Project Structure
@@ -99,6 +100,7 @@ python -m venv .venv
 pip install -r requirements.txt
 python scripts/setup_db.py      # creates .env + DB user/database (see step 1)
 alembic upgrade head            # apply migrations
+python scripts/create_admin.py  # create the first admin (hidden password prompt)
 uvicorn app.main:app --reload   # http://127.0.0.1:8000  (docs at /docs when DEBUG=true)
 ```
 
@@ -110,7 +112,11 @@ Health check: `GET http://127.0.0.1:8000/api/v1/health`. Run tests with `pytest`
 cd frontend
 npm install
 npm run dev                     # http://localhost:5173 (proxies /api to the backend)
+npm test                        # unit tests (session / single-flight refresh logic)
+npm run lint && npm run build   # lint, typecheck and production build
 ```
+
+Sign in at http://localhost:5173/login with the admin account you created. Accounts are created by an administrator (there is no self-registration).
 
 ### Secrets
 

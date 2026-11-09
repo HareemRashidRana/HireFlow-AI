@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { employeesApi } from '../../../api/employees'
+import { useAuth } from '../../../auth/useAuth'
 import { PageHeader } from '../../../components/layout/PageHeader'
 import { Button } from '../../../components/ui/Button'
 import { buttonClasses } from '../../../components/ui/buttonStyles'
@@ -22,6 +23,10 @@ const PAGE_SIZE = 10
 
 export function EmployeesPage() {
   const toast = useToast()
+  const { can } = useAuth()
+  // What the UI offers; the server enforces the same rules on every request.
+  const canWrite = can('employees:write')
+  const canDelete = can('employees:delete')
   const [params, setParams] = useSearchParams()
 
   // The URL is the source of truth for filters, so reload / back / shared links all work.
@@ -105,11 +110,17 @@ export function EmployeesPage() {
     <>
       <PageHeader
         title="Employees"
-        description="Browse, search and manage everyone in your organisation."
+        description={
+          canWrite
+            ? 'Browse, search and manage everyone in your organisation.'
+            : 'Browse and search everyone in your organisation.'
+        }
         actions={
-          <Link to="/employees/new" className={buttonClasses('primary')}>
-            <PlusIcon className="size-4" /> Add employee
-          </Link>
+          canWrite ? (
+            <Link to="/employees/new" className={buttonClasses('primary')}>
+              <PlusIcon className="size-4" /> Add employee
+            </Link>
+          ) : undefined
         }
       />
 
@@ -160,17 +171,28 @@ export function EmployeesPage() {
                 <EmptyState
                   icon={<UsersIcon className="size-7" />}
                   title="No employees yet"
-                  description="Add your first employee to start building your directory."
+                  description={
+                    canWrite
+                      ? 'Add your first employee to start building your directory.'
+                      : 'No one has been added to the directory yet.'
+                  }
                   action={
-                    <Link to="/employees/new" className={buttonClasses('primary')}>
-                      <PlusIcon className="size-4" /> Add employee
-                    </Link>
+                    canWrite ? (
+                      <Link to="/employees/new" className={buttonClasses('primary')}>
+                        <PlusIcon className="size-4" /> Add employee
+                      </Link>
+                    ) : undefined
                   }
                 />
               )
             ) : (
               <>
-                <EmployeeTable employees={items} onDelete={setToDelete} />
+                <EmployeeTable
+                  employees={items}
+                  onDelete={setToDelete}
+                  canEdit={canWrite}
+                  canDelete={canDelete}
+                />
                 <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500 sm:flex-row sm:px-6">
                   <span>
                     Showing {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + items.length} of {total}
@@ -203,7 +225,9 @@ export function EmployeesPage() {
         )}
       </Card>
 
-      <DeleteEmployeeDialog employee={toDelete} onClose={() => setToDelete(null)} onDeleted={handleDeleted} />
+      {canDelete && (
+        <DeleteEmployeeDialog employee={toDelete} onClose={() => setToDelete(null)} onDeleted={handleDeleted} />
+      )}
     </>
   )
 }

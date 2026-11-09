@@ -7,9 +7,9 @@ _Audit date: 2026-11-10. Snapshot of the repository at the start of the 48-hour 
 | Area | Status |
 |------|--------|
 | Project foundation (Vite, FastAPI, PostgreSQL, Alembic) | Done and committed |
-| Employee Management, backend | Done, **not yet committed** |
-| Employee Management, frontend | Done, **not yet committed** |
-| Authentication and roles | Not started |
+| Employee Management, backend and frontend | Done, committed and pushed (`902df15`) |
+| Authentication and RBAC, backend | Done, migration `535134b74f34` applied locally, **not yet committed** |
+| Authentication and RBAC, frontend | Done (login, session restore, single-flight refresh, guards), **not yet committed** |
 | Every other HR module | Not started |
 
 > **Git note:** only one commit exists (`69586b3 Initial HireFlow AI project setup`, equal to `origin/main`).
@@ -110,11 +110,16 @@ Base path: `/api/v1`. **None are authenticated yet.**
 ### Routes
 | Path | Page |
 |------|------|
-| `/` | Redirects to `/employees` |
-| `/employees` | Directory: search, filters (URL-synced), pagination, delete dialog |
-| `/employees/new` | Add employee |
-| `/employees/:id` | Employee details (resolves manager name) |
-| `/employees/:id/edit` | Edit (PATCH with changed fields only) |
+| `/login` | Sign in (public). Shows session-expired / signed-out / password-changed notices, lockout countdown |
+| `/change-password` | Change password. Forced (and the only reachable page) while an admin-set password is pending |
+| `/` | Role-based redirect: staff to `/employees`, employees to `/profile` |
+| `/profile` | The signed-in user's own employee record (read-only) |
+| `/employees` | Directory: search, filters (URL-synced), pagination. Needs `employees:read` |
+| `/employees/new` | Add employee. Needs `employees:write` (admin, HR manager) |
+| `/employees/:id` | Employee details. Staff see anyone; employees only their own (the server enforces this) |
+| `/employees/:id/edit` | Edit (PATCH with changed fields only). Needs `employees:write` |
+
+All routes except `/login` require a signed-in user. Delete is admin-only.
 
 ### Components
 - **Layout:** `AppShell`, `Sidebar` (with API status dot), `PageHeader`, `Logo`.
@@ -126,15 +131,15 @@ Base path: `/api/v1`. **None are authenticated yet.**
 
 | Priority | Task | Why / notes | Est. |
 |----------|------|-------------|------|
-| **P0** | **Commit and push Employee Management** | Work exists only locally. Needs your go-ahead. | 5 min |
-| **P1** | **Authentication and RBAC** | The whole API is currently open. Users table, bcrypt hashing, JWT login and refresh, role guards (Admin, HR, Recruiter, Employee), login page, protected routes, secure the employee endpoints. Every later module depends on it. | 6–8 h |
+| **P0** | **Commit Authentication and RBAC** (backend and frontend) | Built, tested and applied locally but not yet committed. Needs your go-ahead; nothing is pushed without approval. | 5 min |
+| ~~P1~~ | ~~Authentication and RBAC~~ | Done. See sections 5, 6, 7 and 9. Not yet built: user-management screens for admins (the API exists), MFA, email password reset. | done |
 | **P2** | Departments | Replace free-text department with a table and dropdown; migrate existing values. Small and unblocks reporting. | 2–3 h |
 | **P3** | Recruitment | Jobs, candidates, pipeline stages, interviews. Highest business value after auth. | 10–12 h |
 | **P4** | Leave management | Leave types, requests, manager approval, balances. | 6–8 h |
 | **P5** | Attendance | Check-in and out and timesheets. | 4–6 h |
 | **P6** | AI resume screening | Resume upload and parsing, match scoring, recruiter review. Builds on Recruitment. | 8–10 h |
 | **P7** | Dashboard and reports | Headcount, hiring funnel, leave charts. Needs data from P3–P5. | 4–6 h |
-| **P8** | Quality and deployment | Postgres-backed CI tests, Docker Compose, Vitest component tests, gitleaks pre-commit hook, deployment. | 6–8 h |
+| **P8** | Quality and deployment | Postgres-backed CI tests, Docker Compose, Vitest component/UI tests (logic tests exist), gitleaks pre-commit hook, deployment. | 6–8 h |
 
 _Estimates are rough planning figures, not commitments._
 
@@ -144,3 +149,39 @@ _Estimates are rough planning figures, not commitments._
 - Tests use SQLite while production uses PostgreSQL. Add a PostgreSQL CI job to catch dialect differences.
 - Employee delete is permanent. Consider soft-delete or an audit log once auth exists.
 - Add `psql` to PATH (`C:\Program Files\PostgreSQL\16\bin`) for local convenience.
+
+## 9. Frontend authentication requirements
+
+**Status: implemented** in `frontend/src/auth/session.ts` and `frontend/src/api/client.ts`, covered
+by 50 Vitest tests (`npm test`) and exercised in a real browser (see the test report in the PR / chat).
+The requirements below remain the acceptance criteria for any future change to that code.
+
+The backend rotates refresh tokens on every use and treats a re-used token as theft: it revokes
+the whole session. Two requests refreshing at once would therefore sign the user out. The
+frontend **must** guarantee that at most one refresh is in flight per browser session.
+
+**Single-flight refresh (acceptance criteria)**
+1. **One shared promise per tab.** All callers that need a new access token (a 401 retry, the
+   page-load session restore, a proactive timer) call one `refreshAccessToken()`. If a refresh is
+   already running they await the same promise instead of starting another request.
+2. **Concurrent 401s share one refresh.** When several API calls fail with 401 at the same time,
+   they all wait for that single refresh and then each retries once with the new token.
+3. **Retry exactly once.** A request is retried at most one time. A 401 on the retry, or on
+   `/auth/refresh` itself, ends the session (clear in-memory state and go to `/login`) and is
+   never retried in a loop.
+4. **Cross-tab safety.** Tabs share the same refresh cookie, so use the Web Locks API
+   (`navigator.locks.request('hireflow-refresh', ...)`) around the refresh and publish the result
+   with `BroadcastChannel` so other tabs adopt the new access token instead of refreshing again.
+   If Web Locks is unavailable, fall back to a `localStorage` lock with a timeout.
+5. **Headers.** Every call to `/auth/login`, `/auth/refresh` and `/auth/logout` sends
+   `X-Requested-With: HireFlow` (required by the server's CSRF check) and `credentials: 'include'`.
+6. **Storage.** The access token lives only in memory (never `localStorage`/`sessionStorage`).
+   The refresh token is the HttpOnly cookie and is never visible to JavaScript.
+7. **Tests.** Cover: N parallel 401s cause exactly one `/auth/refresh` call; a failed refresh
+   signs out once; no retry loops; a second tab's refresh result is adopted.
+
+**Backend facts the frontend can rely on**
+- `POST /auth/refresh` returns `{access_token, token_type, expires_in, user}` and rotates the cookie.
+- Failed refresh returns 401 and clears the cookie.
+- Login throttling returns 429 with a `Retry-After` header.
+- 403 "You must change your password before continuing." means show the change-password screen.

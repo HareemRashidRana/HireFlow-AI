@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
+import { controlClasses } from './fieldStyles'
 
 interface FieldShellProps {
   label: string
@@ -10,7 +11,7 @@ interface FieldShellProps {
   children: ReactNode
 }
 
-function FieldShell({ label, error, hint, required, id, children }: FieldShellProps) {
+export function FieldShell({ label, error, hint, required, id, children }: FieldShellProps) {
   return (
     <div>
       <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-navy-800">
@@ -28,13 +29,6 @@ function FieldShell({ label, error, hint, required, id, children }: FieldShellPr
     </div>
   )
 }
-
-const controlClasses = (hasError: boolean) =>
-  'block h-11 w-full rounded-xl border bg-white px-3.5 text-sm text-navy-900 shadow-sm ' +
-  'placeholder:text-slate-400 transition-colors focus:outline-none focus:ring-4 ' +
-  (hasError
-    ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-100'
-    : 'border-slate-200 hover:border-slate-300 focus:border-lavender-500 focus:ring-lavender-100')
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string

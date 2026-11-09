@@ -108,3 +108,43 @@ export const ArrowUpRightIcon = (p: IconProps) => (
     <path d="M7 17 17 7M8.5 7H17v8.5" />
   </Svg>
 )
+export const EyeIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+    <circle cx="12" cy="12" r="2.8" />
+  </Svg>
+)
+export const EyeOffIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 4l16 16M9.9 5.8A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a16 16 0 0 1-3 3.7M6.3 7.6A15.7 15.7 0 0 0 2.5 12S6 18.5 12 18.5c1.5 0 2.9-.4 4.1-1M10 10a2.8 2.8 0 0 0 4 4" />
+  </Svg>
+)
+export const LogoutIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M10 4.5H6.5A1.5 1.5 0 0 0 5 6v12a1.5 1.5 0 0 0 1.5 1.5H10M15 8l4 4-4 4M19 12H9.5" />
+  </Svg>
+)
+export const KeyIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="8" cy="15" r="3.5" />
+    <path d="m10.5 12.5 8-8M15.5 7.5l2.5 2.5M13.5 9.5 15 11" />
+  </Svg>
+)
+export const UserIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="8" r="3.8" />
+    <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+  </Svg>
+)
+export const ShieldIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 3.5 5 6v5.5c0 4.2 2.8 7.4 7 9 4.2-1.6 7-4.8 7-9V6l-7-2.5Z" />
+    <path d="m9 12 2.2 2.2L15.2 10" />
+  </Svg>
+)
+export const LockIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="5" y="10.5" width="14" height="9.5" rx="2.5" />
+    <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+  </Svg>
+)

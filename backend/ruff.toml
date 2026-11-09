@@ -7,5 +7,7 @@ select = ["E", "F", "I", "B", "UP"]
 ignore = ["B008"]
 
 [lint.per-file-ignores]
+# Long literal request bodies and assertions read better on one line in tests.
+"tests/*.py" = ["E501"]
 # Alembic generates these files; don't fight its formatting.
 "alembic/versions/*.py" = ["E501", "UP007", "UP035", "I001"]

@@ -8,30 +8,44 @@ import { StatusBadge, TypeBadge } from './StatusBadge'
 interface Props {
   employees: Employee[]
   onDelete: (employee: Employee) => void
+  /** Show the Edit action (HR managers and admins). */
+  canEdit: boolean
+  /** Show the Delete action (admins only). */
+  canDelete: boolean
 }
 
 const iconBtn =
   'rounded-lg p-2 text-slate-400 transition-colors hover:bg-lavender-100 hover:text-navy-900'
 
-function RowActions({ employee, onDelete }: { employee: Employee; onDelete: (e: Employee) => void }) {
+function RowActions({
+  employee,
+  onDelete,
+  canEdit,
+  canDelete,
+}: { employee: Employee; onDelete: (e: Employee) => void } & Pick<Props, 'canEdit' | 'canDelete'>) {
+  if (!canEdit && !canDelete) return null
   return (
     <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-      <Link to={`/employees/${employee.id}/edit`} aria-label={`Edit ${fullName(employee)}`} className={iconBtn}>
-        <PencilIcon className="size-[18px]" />
-      </Link>
-      <button
-        type="button"
-        onClick={() => onDelete(employee)}
-        aria-label={`Delete ${fullName(employee)}`}
-        className={`${iconBtn} hover:!bg-rose-50 hover:!text-rose-600`}
-      >
-        <TrashIcon className="size-[18px]" />
-      </button>
+      {canEdit && (
+        <Link to={`/employees/${employee.id}/edit`} aria-label={`Edit ${fullName(employee)}`} className={iconBtn}>
+          <PencilIcon className="size-[18px]" />
+        </Link>
+      )}
+      {canDelete && (
+        <button
+          type="button"
+          onClick={() => onDelete(employee)}
+          aria-label={`Delete ${fullName(employee)}`}
+          className={`${iconBtn} hover:!bg-rose-50 hover:!text-rose-600`}
+        >
+          <TrashIcon className="size-[18px]" />
+        </button>
+      )}
     </div>
   )
 }
 
-export function EmployeeTable({ employees, onDelete }: Props) {
+export function EmployeeTable({ employees, onDelete, canEdit, canDelete }: Props) {
   const navigate = useNavigate()
 
   return (
@@ -89,7 +103,7 @@ export function EmployeeTable({ employees, onDelete }: Props) {
                   {formatDate(e.date_of_joining)}
                 </td>
                 <td className="px-6 py-3.5">
-                  <RowActions employee={e} onDelete={onDelete} />
+                  <RowActions employee={e} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} />
                 </td>
               </tr>
             ))}
@@ -109,7 +123,7 @@ export function EmployeeTable({ employees, onDelete }: Props) {
                   <span className="block truncate text-xs text-slate-500">{e.job_title}</span>
                 </div>
               </Link>
-              <RowActions employee={e} onDelete={onDelete} />
+              <RowActions employee={e} onDelete={onDelete} canEdit={canEdit} canDelete={canDelete} />
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge status={e.employment_status} />

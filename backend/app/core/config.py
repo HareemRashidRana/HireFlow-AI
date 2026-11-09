@@ -1,9 +1,12 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
-from pydantic import computed_field
+from pydantic import computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
+
+MIN_SECRET_KEY_LENGTH = 32
 
 
 class Settings(BaseSettings):
@@ -28,8 +31,24 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "hireflow_user"
     POSTGRES_PASSWORD: str = ""
 
+    # --- Authentication ---
     SECRET_KEY: str = ""
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    # A refresh token lasts this long and is replaced on every use (rotation)...
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    # ...but a whole login session can never be extended beyond this.
+    SESSION_MAX_DAYS: int = 30
+
+    # Refresh-token cookie. COOKIE_SECURE=None means "secure unless APP_ENV is development".
+    COOKIE_SECURE: bool | None = None
+    COOKIE_SAMESITE: Literal["strict", "lax", "none"] = "strict"
+    COOKIE_NAME: str = "hireflow_refresh"
+
+    # Failed-login protection (database-backed).
+    LOGIN_MAX_FAILED_ATTEMPTS: int = 5  # per account, within the window -> temporary lockout
+    LOGIN_IP_MAX_FAILED_ATTEMPTS: int = 30  # per client IP, within the window -> rate limited
+    LOGIN_LOCKOUT_MINUTES: int = 15
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -47,6 +66,29 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def is_development(self) -> bool:
+        return self.APP_ENV.lower() in {"development", "dev", "local", "test"}
+
+    @property
+    def cookie_secure(self) -> bool:
+        if self.COOKIE_SECURE is not None:
+            return self.COOKIE_SECURE
+        return not self.is_development
+
+    @model_validator(mode="after")
+    def _validate_security(self) -> "Settings":
+        # Refuse to boot a non-development deployment with a weak or missing signing key.
+        if not self.is_development and len(self.SECRET_KEY) < MIN_SECRET_KEY_LENGTH:
+            raise ValueError(
+                f"SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters "
+                "outside development"
+            )
+        # Browsers reject SameSite=None cookies that are not Secure.
+        if self.COOKIE_SAMESITE == "none" and not self.cookie_secure:
+            raise ValueError("COOKIE_SAMESITE=none requires secure cookies")
+        return self
 
 
 @lru_cache
