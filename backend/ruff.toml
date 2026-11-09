@@ -5,3 +5,7 @@ extend-exclude = [".venv"]
 select = ["E", "F", "I", "B", "UP"]
 # FastAPI's `Depends(...)` in argument defaults is the framework's idiom.
 ignore = ["B008"]
+
+[lint.per-file-ignores]
+# Alembic generates these files; don't fight its formatting.
+"alembic/versions/*.py" = ["E501", "UP007", "UP035", "I001"]
