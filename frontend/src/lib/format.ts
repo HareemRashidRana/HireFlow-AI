@@ -31,6 +31,11 @@ export function formatDate(iso: string): string {
   })
 }
 
+/** For full ISO timestamps (not plain dates): "2026-11-10T01:00:00Z" -> "10 Nov 2026". */
+export function formatShortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 export function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString('en-GB', {
     day: 'numeric',

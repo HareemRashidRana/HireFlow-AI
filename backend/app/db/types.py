@@ -1,8 +1,24 @@
+import enum
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, Enum
 from sqlalchemy.engine import Dialect
 from sqlalchemy.types import TypeDecorator
+
+
+def string_enum(enum_cls: type[enum.StrEnum], name: str, length: int = 20) -> Enum:
+    """An enum stored as VARCHAR + CHECK constraint (portable and easy to migrate).
+
+    Values are the lowercase member values (e.g. "on_hold"), not the member names.
+    """
+    return Enum(
+        enum_cls,
+        name=name,
+        native_enum=False,
+        create_constraint=True,
+        length=length,
+        values_callable=lambda e: [m.value for m in e],
+    )
 
 
 class UTCDateTime(TypeDecorator[datetime]):

@@ -1,5 +1,10 @@
 import { useId } from 'react'
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from 'react'
 import { controlClasses } from './fieldStyles'
 
 interface FieldShellProps {
@@ -72,6 +77,28 @@ export function Select({ label, error, hint, required, className = '', children,
       >
         {children}
       </select>
+    </FieldShell>
+  )
+}
+
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string
+  error?: string
+  hint?: string
+}
+
+export function Textarea({ label, error, hint, required, className = '', ...props }: TextareaProps) {
+  const id = useId()
+  return (
+    <FieldShell label={label} error={error} hint={hint} required={required} id={id}>
+      <textarea
+        id={id}
+        required={required}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={`${controlClasses(!!error)} !h-auto min-h-32 py-3 leading-relaxed ${className}`}
+        {...props}
+      />
     </FieldShell>
   )
 }

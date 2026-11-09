@@ -10,6 +10,10 @@ import { EmployeeDetailPage } from './features/employees/pages/EmployeeDetailPag
 import { EmployeeEditPage } from './features/employees/pages/EmployeeEditPage'
 import { EmployeesPage } from './features/employees/pages/EmployeesPage'
 import { ProfilePage } from './features/employees/pages/ProfilePage'
+import { JobCreatePage } from './features/recruitment/pages/JobCreatePage'
+import { JobDetailPage } from './features/recruitment/pages/JobDetailPage'
+import { JobEditPage } from './features/recruitment/pages/JobEditPage'
+import { JobsPage } from './features/recruitment/pages/JobsPage'
 
 function App() {
   return (
@@ -45,6 +49,25 @@ function App() {
               <Route
                 path="employees/:id/edit"
                 element={<RequirePermission permission="employees:write"><EmployeeEditPage /></RequirePermission>}
+              />
+
+              {/* Recruitment: jobs. Same rules as the API (recruitment:*). */}
+              <Route path="recruitment" element={<Navigate to="/recruitment/jobs" replace />} />
+              <Route
+                path="recruitment/jobs"
+                element={<RequirePermission permission="recruitment:read"><JobsPage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/jobs/new"
+                element={<RequirePermission permission="recruitment:write"><JobCreatePage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/jobs/:id"
+                element={<RequirePermission permission="recruitment:read"><JobDetailPage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/jobs/:id/edit"
+                element={<RequirePermission permission="recruitment:write"><JobEditPage /></RequirePermission>}
               />
             </Route>
 

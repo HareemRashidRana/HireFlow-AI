@@ -15,10 +15,12 @@ interface Props {
   /** Hide this employee from the results (you cannot manage yourself). */
   excludeId?: string
   error?: string
+  /** Field label, e.g. "Hiring manager". Defaults to "Manager". */
+  label?: string
 }
 
 /** Search-as-you-type picker: the API has no "list all" beyond 100 rows, so we query by name. */
-export function ManagerPicker({ value, onChange, excludeId, error }: Props) {
+export function ManagerPicker({ value, onChange, excludeId, error, label = 'Manager' }: Props) {
   const [selected, setSelected] = useState<Employee | null>(null)
   const [text, setText] = useState('')
   const [open, setOpen] = useState(false)
@@ -57,7 +59,7 @@ export function ManagerPicker({ value, onChange, excludeId, error }: Props) {
 
   return (
     <div>
-      <span className="mb-1.5 block text-sm font-medium text-navy-800">Manager</span>
+      <span className="mb-1.5 block text-sm font-medium text-navy-800">{label}</span>
 
       {selected ? (
         <div className="flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-white pr-2 pl-3 shadow-sm">
@@ -70,7 +72,7 @@ export function ManagerPicker({ value, onChange, excludeId, error }: Props) {
           <button
             type="button"
             onClick={() => onChange('')}
-            aria-label="Remove manager"
+            aria-label={`Remove ${label.toLowerCase()}`}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-lavender-100 hover:text-navy-900"
           >
             <CloseIcon className="size-4" />
@@ -91,7 +93,7 @@ export function ManagerPicker({ value, onChange, excludeId, error }: Props) {
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
             placeholder="Search by name or email (optional)"
-            aria-label="Search for a manager"
+            aria-label={`Search for a ${label.toLowerCase()}`}
             aria-invalid={!!error}
             className={`block h-11 w-full rounded-xl border bg-white pr-3.5 pl-11 text-sm shadow-sm placeholder:text-slate-400 focus:ring-4 focus:outline-none ${
               error

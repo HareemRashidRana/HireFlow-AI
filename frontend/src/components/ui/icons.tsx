@@ -148,3 +148,9 @@ export const LockIcon = (p: IconProps) => (
     <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
   </Svg>
 )
+export const BriefcaseIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="7.5" width="17" height="12" rx="2.5" />
+    <path d="M8.5 7.5V6A1.5 1.5 0 0 1 10 4.5h4A1.5 1.5 0 0 1 15.5 6v1.5M3.5 12.5h17" />
+  </Svg>
+)

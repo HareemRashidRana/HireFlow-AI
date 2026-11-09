@@ -5,13 +5,23 @@ import type { AuthUser, UserRole } from '../types/auth'
  * and users.py). It only decides what the UI shows: the server is the authority and re-checks every
  * request, so hiding a button is a convenience, never a security control.
  */
-export type Permission = 'employees:read' | 'employees:write' | 'employees:delete' | 'users:manage'
+export type Permission =
+  | 'employees:read'
+  | 'employees:write'
+  | 'employees:delete'
+  | 'users:manage'
+  | 'recruitment:read'
+  | 'recruitment:write'
+  | 'recruitment:delete'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
   'employees:write': ['admin', 'hr_manager'], // create and edit
   'employees:delete': ['admin'],
   'users:manage': ['admin'],
+  'recruitment:read': ['admin', 'hr_manager', 'recruiter'], // view jobs
+  'recruitment:write': ['admin', 'hr_manager', 'recruiter'], // create, edit, change job status
+  'recruitment:delete': ['admin'], // delete draft jobs
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {

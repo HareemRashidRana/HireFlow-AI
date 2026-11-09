@@ -18,7 +18,10 @@ export default defineConfig({
     },
   },
   test: {
+    // Logic tests run in plain Node. Component tests opt in to a DOM with the file comment
+    // `// @vitest-environment jsdom`.
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}'],
+    setupFiles: ['src/test/setup.ts'],
   },
 })
