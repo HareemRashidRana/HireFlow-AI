@@ -21,6 +21,7 @@ export type Permission =
   | 'resumes:delete'
   | 'screening:use'
   | 'interviews:use'
+  | 'analytics:read'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -53,6 +54,8 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   // Interviews: schedule, view, change and give feedback. Employees get nothing. Feedback is further
   // limited by the server (only an assigned interviewer writes it; HR and admins read submitted feedback).
   'interviews:use': ['admin', 'hr_manager', 'recruiter'],
+  // Recruitment analytics and the dashboard: aggregate counts only. Employees get nothing; the API enforces it.
+  'analytics:read': ['admin', 'hr_manager', 'recruiter'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {
@@ -66,9 +69,9 @@ export const roleLabels: Record<UserRole, string> = {
   employee: 'Employee',
 }
 
-/** Where a signed-in user lands: staff see the directory, employees see their own record. */
+/** Where a signed-in user lands: recruitment staff see the dashboard, employees their own record. */
 export function homePath(user: AuthUser): string {
-  return can(user, 'employees:read') ? '/employees' : '/profile'
+  return can(user, 'analytics:read') ? '/dashboard' : '/profile'
 }
 
 /** Only follow in-app paths ("/employees"), never "//evil.com" or "https://...". */

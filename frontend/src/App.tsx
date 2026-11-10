@@ -22,6 +22,7 @@ import { CandidatesPage } from './features/recruitment/pages/CandidatesPage'
 import { JobCreatePage } from './features/recruitment/pages/JobCreatePage'
 import { JobDetailPage } from './features/recruitment/pages/JobDetailPage'
 import { JobEditPage } from './features/recruitment/pages/JobEditPage'
+import { DashboardPage } from './features/dashboard/pages/DashboardPage'
 import { InterviewDetailPage } from './features/recruitment/pages/InterviewDetailPage'
 import { InterviewsPage } from './features/recruitment/pages/InterviewsPage'
 import { JobsPage } from './features/recruitment/pages/JobsPage'
@@ -44,6 +45,7 @@ function App() {
             {/* Signed in */}
             <Route element={<RequireAuth><AppShell /></RequireAuth>}>
               <Route index element={<HomeRedirect />} />
+              <Route path="dashboard" element={<RequirePermission permission="analytics:read"><DashboardPage /></RequirePermission>} />
               <Route path="profile" element={<ProfilePage />} />
 
               {/* Role-restricted. The API enforces the same rules; these just show a clear message. */}

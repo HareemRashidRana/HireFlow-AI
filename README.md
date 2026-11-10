@@ -14,9 +14,10 @@
 - **Resumes (built):** secure PDF/DOCX upload, private storage, version history with one active resume, deterministic text extraction and parsing with confidence, and a human review step (parsed data never changes a candidate on its own). No OCR and no scoring. See [docs/RESUMES.md](docs/RESUMES.md) for behaviour, limits and operations
 - **Requirements Coverage (built, advisory):** a transparent, deterministic comparison of a job's required and preferred skills with a human-reviewed resume (80/20 weights, curated alias table), with versioned immutable assessments, stale detection, human judgement kept separate, full audit and privacy scrubbing. It never ranks, filters or changes an application's stage. See [docs/REQUIREMENTS_COVERAGE.md](docs/REQUIREMENTS_COVERAGE.md) for the method, limits and privacy behaviour
 - **Interview management (built):** scheduling with time-zone-safe times and race-safe conflict detection, a one-way lifecycle (scheduled, confirmed, completed, cancelled, rescheduled with history kept), several interviewers per interview, human-written feedback with private notes and versioned edits, a weekly calendar, list, detail and stats. It never ranks, scores or changes an application's stage. Needs migration `d34d0c31088c`. See [docs/INTERVIEWS.md](docs/INTERVIEWS.md) for the workflow, permissions, API, privacy and limits
+- **Recruitment analytics and HR dashboard (built):** the landing page for recruitment staff. Live KPIs, a current-stage hiring funnel, application, interview and hire trends, interview and source breakdowns, time to hire and per-job performance, with period, department and job filters. Read-only aggregate queries (no new tables, no personal data, no caching); employees have no access. See [docs/ANALYTICS.md](docs/ANALYTICS.md) for every definition, the time-zone rules and the limits
 - **AI screening:** further screening features (resume parsing and Requirements Coverage are built, see above)
 - **Leave and attendance:** requests, approvals, balances
-- **Dashboard:** headcount, hiring funnel and leave analytics
+- **Dashboard (leave and attendance analytics):** planned; recruitment analytics are built, see above
 
 ## Tech Stack
 

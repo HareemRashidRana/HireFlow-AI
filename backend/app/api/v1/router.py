@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    analytics,
     applications,
     auth,
     candidates,
@@ -26,3 +27,4 @@ api_router.include_router(privacy.router)
 api_router.include_router(resumes.router)
 api_router.include_router(screening.router)
 api_router.include_router(interviews.router)
+api_router.include_router(analytics.router)

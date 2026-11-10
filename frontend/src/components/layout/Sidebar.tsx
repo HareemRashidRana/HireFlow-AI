@@ -10,6 +10,7 @@ import { Avatar } from '../ui/Avatar'
 import {
   BriefcaseIcon,
   CalendarIcon,
+  DashboardIcon,
   ClipboardIcon,
   ContactIcon,
   KanbanIcon,
@@ -34,6 +35,7 @@ interface NavItem {
 }
 
 const nav: NavItem[] = [
+  { to: '/dashboard', label: 'Dashboard', icon: DashboardIcon, permission: 'analytics:read' },
   { to: '/employees', label: 'Employees', icon: UsersIcon, permission: 'employees:read' },
   { to: '/recruitment/jobs', label: 'Jobs', icon: BriefcaseIcon, permission: 'recruitment:read' },
   { to: '/recruitment/candidates', label: 'Candidates', icon: ContactIcon, permission: 'recruitment:read' },

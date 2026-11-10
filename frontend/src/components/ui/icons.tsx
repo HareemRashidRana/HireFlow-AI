@@ -181,3 +181,12 @@ export const KanbanIcon = (p: IconProps) => (
     <rect x="17.5" y="4" width="3" height="13" rx="1.5" />
   </Svg>
 )
+
+export const DashboardIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="3.5" width="7" height="8.5" rx="1.8" />
+    <rect x="13.5" y="3.5" width="7" height="5" rx="1.8" />
+    <rect x="13.5" y="11.5" width="7" height="9" rx="1.8" />
+    <rect x="3.5" y="15" width="7" height="5.5" rx="1.8" />
+  </Svg>
+)
