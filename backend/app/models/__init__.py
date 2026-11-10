@@ -33,8 +33,34 @@ from app.models.screening import (
     ScrubReason,
 )
 from app.models.user import User, UserRole
+from app.models.workforce import (
+    AttendanceCorrection,
+    AttendanceRecord,
+    AttendanceSource,
+    Holiday,
+    LeaveEvent,
+    LeaveEventType,
+    LeaveLedgerEntry,
+    LeaveRequest,
+    LeaveStatus,
+    LeaveType,
+    LedgerEntryType,
+    WorkSettings,
+)
 
 __all__ = [
+    "AttendanceCorrection",
+    "AttendanceRecord",
+    "AttendanceSource",
+    "Holiday",
+    "LeaveEvent",
+    "LeaveEventType",
+    "LeaveLedgerEntry",
+    "LeaveRequest",
+    "LeaveStatus",
+    "LeaveType",
+    "LedgerEntryType",
+    "WorkSettings",
     "FeedbackStatus",
     "Interview",
     "InterviewEvent",

@@ -10,6 +10,7 @@ import { Avatar } from '../ui/Avatar'
 import {
   BriefcaseIcon,
   CalendarIcon,
+  ClockIcon,
   DashboardIcon,
   ClipboardIcon,
   ContactIcon,
@@ -17,6 +18,8 @@ import {
   KeyIcon,
   LogoutIcon,
   ShieldIcon,
+  SlidersIcon,
+  SunIcon,
   UserIcon,
   UsersIcon,
 } from '../ui/icons'
@@ -32,6 +35,8 @@ interface NavItem {
   permission?: Permission
   /** Shown only to users that have an employee record linked to their account. */
   needsEmployeeRecord?: boolean
+  /** ...or anyone holding this permission (HR runs these pages without needing a record of their own). */
+  orPermission?: Permission
 }
 
 const nav: NavItem[] = [
@@ -43,6 +48,9 @@ const nav: NavItem[] = [
   { to: '/recruitment/pipeline', label: 'Pipeline', icon: KanbanIcon, permission: 'recruitment:read' },
   { to: '/recruitment/interviews', label: 'Interviews', icon: CalendarIcon, permission: 'interviews:use' },
   { to: '/recruitment/privacy', label: 'Privacy', icon: ShieldIcon, permission: 'privacy:manage' },
+  { to: '/attendance', label: 'Attendance', icon: ClockIcon, needsEmployeeRecord: true, orPermission: 'workforce:manage' },
+  { to: '/leave', label: 'Leave', icon: SunIcon, needsEmployeeRecord: true, orPermission: 'workforce:manage' },
+  { to: '/settings/work', label: 'Work schedule', icon: SlidersIcon, permission: 'workforce:manage' },
   { to: '/profile', label: 'My profile', icon: UserIcon, needsEmployeeRecord: true },
 ]
 
@@ -69,7 +77,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const items = nav.filter((item) => {
     if (item.permission && !can(item.permission)) return false
     // Employees always get "My profile" (it explains if no record is linked); others only if linked.
-    if (item.needsEmployeeRecord && !(user?.employee_id || user?.role === 'employee')) return false
+    if (item.needsEmployeeRecord && !(user?.employee_id || user?.role === 'employee') && !(item.orPermission && can(item.orPermission))) return false
     return true
   })
 

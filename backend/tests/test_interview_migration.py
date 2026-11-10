@@ -44,8 +44,9 @@ def load():
 
 def test_one_head_and_the_right_parent():
     s = script()
-    assert s.get_heads() == [NEW]
+    assert len(s.get_heads()) == 1  # no branches; later migrations build on this one
     assert s.get_revision(NEW).down_revision == PREVIOUS
+    assert NEW in {r.revision for r in s.walk_revisions()}
 
 
 def test_the_audit_check_list_equals_the_enum_exactly():

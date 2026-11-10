@@ -186,3 +186,7 @@ def clock(monkeypatch) -> FakeClock:
     real = security.utcnow
     monkeypatch.setattr(security, "utcnow", lambda: real() + fake.offset)
     return fake
+
+
+# Fixtures for the attendance and leave tests (a controllable clock, people with logins, leave types).
+from tests.workforce_helpers import person, types, wclock  # noqa: E402, F401

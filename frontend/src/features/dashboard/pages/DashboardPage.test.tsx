@@ -6,15 +6,16 @@ import { ApiError } from '../../../api/errors'
 import { RequirePermission } from '../../../auth/guards'
 import { homePath } from '../../../auth/permissions'
 import { Sidebar } from '../../../components/layout/Sidebar'
-import { emptyOverview, makeJobs, makeOverview, options } from '../../../test/analyticsFixtures'
+import { emptyOverview, makeJobs, makeOverview, makeWorkforce, options } from '../../../test/analyticsFixtures'
 import { makeUser } from '../../../test/fixtures'
 import { renderAs } from '../../../test/render'
 import type { UserRole } from '../../../types/auth'
 import { daysInRange, dayKey } from '../lib/dashboard'
 import { DashboardPage } from './DashboardPage'
 
-const api = vi.hoisted(() => ({ overview: vi.fn(), jobs: vi.fn(), filterOptions: vi.fn() }))
+const api = vi.hoisted(() => ({ overview: vi.fn(), jobs: vi.fn(), filterOptions: vi.fn(), workforce: vi.fn() }))
 vi.mock('../../../api/analytics', () => ({ analyticsApi: api }))
+vi.mock('../../../api/workforce', () => ({ workforceAnalyticsApi: { overview: api.workforce } }))
 vi.mock('../../../hooks/useApiHealth', () => ({ useApiHealth: () => 'online' }))
 
 beforeEach(() => {
@@ -22,6 +23,7 @@ beforeEach(() => {
   api.overview.mockResolvedValue(makeOverview())
   api.jobs.mockResolvedValue(makeJobs())
   api.filterOptions.mockResolvedValue(options)
+  api.workforce.mockResolvedValue(makeWorkforce())
 })
 
 const render = (role: UserRole = 'hr_manager') => {

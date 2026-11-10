@@ -22,6 +22,7 @@ export type Permission =
   | 'screening:use'
   | 'interviews:use'
   | 'analytics:read'
+  | 'workforce:manage'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -56,6 +57,10 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   'interviews:use': ['admin', 'hr_manager', 'recruiter'],
   // Recruitment analytics and the dashboard: aggregate counts only. Employees get nothing; the API enforces it.
   'analytics:read': ['admin', 'hr_manager', 'recruiter'],
+  // Attendance and leave administration: see everyone's attendance, correct it, decide leave, grant
+  // balances, set the working rules. Self-service (own attendance, own leave) needs only a linked
+  // employee record, so it is not a role permission. The API enforces all of it.
+  'workforce:manage': ['admin', 'hr_manager'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {

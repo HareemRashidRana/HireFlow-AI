@@ -139,4 +139,12 @@ def delete_employee(db: Session, employee_pk: uuid.UUID) -> None:
     """Hard delete. Direct reports are kept and their manager is cleared."""
     employee = get_employee(db, employee_pk)
     db.delete(employee)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Attendance and leave history (and recruitment records) must never be orphaned.
+        db.rollback()
+        raise ConflictError(
+            "This employee has attendance, leave or other records, so they cannot be deleted. "
+            "Set their status to inactive or terminated instead."
+        ) from None

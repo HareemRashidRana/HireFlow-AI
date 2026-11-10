@@ -10,10 +10,14 @@ TZ = "Asia/Karachi"
 
 
 def slot(day: int = 3, hour: int = 10, minutes: int = 60, tz: str = TZ) -> dict:
-    """A local start/end `day` days from now, as plain local strings in `tz`."""
+    """A local start/end on the UTC date `day` days from now, written as plain local strings in `tz`.
+
+    The date comes from ONE shared reference (the UTC date), not from each zone's own calendar, so
+    "10:00 in Karachi" and "05:00 UTC" built the same way are really the same instant at any hour of
+    the day. (Using each zone's own date made these tests fail for part of every day.)"""
     zone = ZoneInfo(tz)
-    base = (datetime.now(UTC) + timedelta(days=day)).astimezone(zone)
-    start = base.replace(hour=hour, minute=0, second=0, microsecond=0)
+    base = (datetime.now(UTC) + timedelta(days=day)).date()
+    start = datetime(base.year, base.month, base.day, hour, 0, tzinfo=zone)
     end = start + timedelta(minutes=minutes)
     fmt = "%Y-%m-%dT%H:%M"
     return {"starts_at": start.strftime(fmt), "ends_at": end.strftime(fmt), "timezone": tz}

@@ -22,6 +22,16 @@ import { CandidatesPage } from './features/recruitment/pages/CandidatesPage'
 import { JobCreatePage } from './features/recruitment/pages/JobCreatePage'
 import { JobDetailPage } from './features/recruitment/pages/JobDetailPage'
 import { JobEditPage } from './features/recruitment/pages/JobEditPage'
+import { AttendanceHistoryPage } from './features/workforce/pages/AttendanceHistoryPage'
+import { AttendanceManagePage } from './features/workforce/pages/AttendanceManagePage'
+import { AttendanceOverviewPage } from './features/workforce/pages/AttendanceOverviewPage'
+import { AttendancePage } from './features/workforce/pages/AttendancePage'
+import { LeaveApprovalsPage } from './features/workforce/pages/LeaveApprovalsPage'
+import { LeaveBalancesPage } from './features/workforce/pages/LeaveBalancesPage'
+import { LeaveCalendarPage } from './features/workforce/pages/LeaveCalendarPage'
+import { LeaveDashboardPage } from './features/workforce/pages/LeaveDashboardPage'
+import { MyLeavePage } from './features/workforce/pages/MyLeavePage'
+import { WorkSettingsPage } from './features/workforce/pages/WorkSettingsPage'
 import { DashboardPage } from './features/dashboard/pages/DashboardPage'
 import { InterviewDetailPage } from './features/recruitment/pages/InterviewDetailPage'
 import { InterviewsPage } from './features/recruitment/pages/InterviewsPage'
@@ -46,6 +56,18 @@ function App() {
             <Route element={<RequireAuth><AppShell /></RequireAuth>}>
               <Route index element={<HomeRedirect />} />
               <Route path="dashboard" element={<RequirePermission permission="analytics:read"><DashboardPage /></RequirePermission>} />
+              {/* Attendance and leave. Own pages need a linked employee record (the page says so);
+                  HR pages need workforce:manage. The API enforces both. */}
+              <Route path="attendance" element={<AttendancePage />} />
+              <Route path="attendance/history" element={<AttendanceHistoryPage />} />
+              <Route path="attendance/overview" element={<RequirePermission permission="workforce:manage"><AttendanceOverviewPage /></RequirePermission>} />
+              <Route path="attendance/manage" element={<RequirePermission permission="workforce:manage"><AttendanceManagePage /></RequirePermission>} />
+              <Route path="leave" element={<LeaveDashboardPage />} />
+              <Route path="leave/requests" element={<MyLeavePage />} />
+              <Route path="leave/approvals" element={<RequirePermission permission="workforce:manage"><LeaveApprovalsPage /></RequirePermission>} />
+              <Route path="leave/balances" element={<LeaveBalancesPage />} />
+              <Route path="leave/calendar" element={<LeaveCalendarPage />} />
+              <Route path="settings/work" element={<RequirePermission permission="workforce:manage"><WorkSettingsPage /></RequirePermission>} />
               <Route path="profile" element={<ProfilePage />} />
 
               {/* Role-restricted. The API enforces the same rules; these just show a clear message. */}

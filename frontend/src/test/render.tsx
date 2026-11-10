@@ -16,14 +16,16 @@ interface Options {
   /** URL the test starts at. */
   url?: string
   role?: UserRole
+  /** The employee record the login is linked to. Default none; attendance and leave self-service need one. */
+  employeeId?: string | null
 }
 
 /**
  * Renders an element inside a router, a signed-in user (any role) and the toast provider.
  * Navigating anywhere that is not `path` renders a location probe instead of a blank page.
  */
-export function renderAs(ui: ReactElement, { path = '*', url = '/', role = 'recruiter' }: Options = {}) {
-  const user = makeUser(role)
+export function renderAs(ui: ReactElement, { path = '*', url = '/', role = 'recruiter', employeeId = null }: Options = {}) {
+  const user = makeUser(role, { employee_id: employeeId })
   const auth: AuthContextValue = {
     status: 'authenticated',
     user,

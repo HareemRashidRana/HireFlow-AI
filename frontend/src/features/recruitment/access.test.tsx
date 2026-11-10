@@ -70,8 +70,8 @@ describe('sidebar navigation by role', () => {
     expect(screen.getByRole('link', { name: 'Pipeline' }).getAttribute('href')).toBe('/recruitment/pipeline')
   })
 
-  it('employees see none of the recruitment links (Jobs, Candidates, Applications, Pipeline); they only get their own profile', () => {
+  it('employees see none of the recruitment links (Jobs, Candidates, Applications, Pipeline); only their own attendance, leave and profile', () => {
     renderAs(<Sidebar />, { role: 'employee' })
-    expect(navLabels()).toEqual(['My profile'])
+    expect(navLabels()).toEqual(['Attendance', 'Leave', 'My profile'])
   })
 })

@@ -16,8 +16,8 @@
 - **Interview management (built):** scheduling with time-zone-safe times and race-safe conflict detection, a one-way lifecycle (scheduled, confirmed, completed, cancelled, rescheduled with history kept), several interviewers per interview, human-written feedback with private notes and versioned edits, a weekly calendar, list, detail and stats. It never ranks, scores or changes an application's stage. Needs migration `d34d0c31088c`. See [docs/INTERVIEWS.md](docs/INTERVIEWS.md) for the workflow, permissions, API, privacy and limits
 - **Recruitment analytics and HR dashboard (built):** the landing page for recruitment staff. Live KPIs, a current-stage hiring funnel, application, interview and hire trends, interview and source breakdowns, time to hire and per-job performance, with period, department and job filters. Read-only aggregate queries (no new tables, no personal data, no caching); employees have no access. See [docs/ANALYTICS.md](docs/ANALYTICS.md) for every definition, the time-zone rules and the limits
 - **AI screening:** further screening features (resume parsing and Requirements Coverage are built, see above)
-- **Leave and attendance:** requests, approvals, balances
-- **Dashboard (leave and attendance analytics):** planned; recruitment analytics are built, see above
+- **Attendance and leave (built):** check-in and check-out in the company time zone with late, early and absent rules, history and monthly summaries, HR corrections that always carry a reason and an append-only audit trail; leave requests with working-day counting (weekends and holidays skipped), overlap and balance checks, an HR approval workflow nobody can use on their own request, and an append-only balance ledger (exactly one deduction per approval, one reversal per cancellation), verified under real concurrency on PostgreSQL. Configurable working week, hours, grace period, holidays and leave types, a leave calendar, and attendance and leave figures on the HR dashboard. Needs migration `99db234e646c`. See [docs/ATTENDANCE.md](docs/ATTENDANCE.md) and [docs/LEAVE_MANAGEMENT.md](docs/LEAVE_MANAGEMENT.md) for rules, endpoints, time zones, permissions and limits
+- **Dashboard:** recruitment analytics plus attendance and leave figures for HR, see above
 
 ## Tech Stack
 
@@ -144,7 +144,7 @@ Resume files are kept **outside the database**, in a private folder that is neve
 | **3. Auth and users** | User model, migrations, register/login/refresh, role-based guards, login UI, protected routes | Secure login end to end |
 | **4. Employees and departments** | CRUD APIs and UI, search, pagination | Core HR records |
 | **5. Recruitment** | Jobs, candidates, pipeline stages, interviews (built) | Working hiring workflow |
-| **6. Leave and attendance** | Requests, approvals, balances | Employee self-service |
+| **6. Leave and attendance** | Requests, approvals, balances (built) | Employee self-service |
 | **7. AI screening** | Resume upload and parsing, match scoring, recruiter review UI | The "AI" in HireFlow |
 | **8. Dashboard and reports** | KPIs and charts | Management insights |
 | **9. Quality and deploy** | Test coverage, CI, Docker, deployment, docs | Production-ready release |

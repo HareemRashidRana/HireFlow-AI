@@ -1,4 +1,5 @@
 import type { FilterOptions, JobPerformanceList, Overview, TrendPoint } from '../types/analytics'
+import type { WorkforceOverview } from '../types/workforce'
 
 const stages = ['applied', 'screening', 'shortlisted', 'interview', 'offer', 'hired', 'rejected', 'withdrawn']
 
@@ -68,3 +69,25 @@ export const options: FilterOptions = {
   ],
   departments: ['Engineering', 'Sales'],
 }
+
+export const makeWorkforce = (over: Partial<WorkforceOverview> = {}): WorkforceOverview => ({
+  date: '2026-03-04',
+  timezone: 'Asia/Karachi',
+  is_working_day: true,
+  expected: 12,
+  present: 9,
+  late: 2,
+  on_leave: 1,
+  not_checked_in: 2,
+  pending_leave_requests: 3,
+  attendance_rate: 0.925,
+  leave_trend: [
+    { month: '2025-10', approved_days: 0 },
+    { month: '2025-11', approved_days: 2 },
+    { month: '2025-12', approved_days: 5 },
+    { month: '2026-01', approved_days: 0 },
+    { month: '2026-02', approved_days: 3.5 },
+    { month: '2026-03', approved_days: 1 },
+  ],
+  ...over,
+})

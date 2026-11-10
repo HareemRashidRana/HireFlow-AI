@@ -14,6 +14,7 @@ import { FunnelChart } from '../components/FunnelChart'
 import { JobPerformanceTable } from '../components/JobPerformanceTable'
 import { KpiCards, KpiSkeleton } from '../components/KpiCards'
 import { TrendChart } from '../components/TrendChart'
+import { WorkforcePanel } from '../components/WorkforcePanel'
 import { browserZone, longDay, presetLabels, presetRange, rangeProblem } from '../lib/dashboard'
 import type { DashboardFilterValues } from '../lib/dashboard'
 
@@ -26,7 +27,7 @@ function greeting(): string {
 
 /** The HR dashboard: real recruitment numbers from /analytics, refreshed whenever a filter changes. */
 export function DashboardPage() {
-  const { user } = useAuth()
+  const { user, can } = useAuth()
   const [filters, setFilters] = useState<DashboardFilterValues>(initial)
   const [timezone] = useState(browserZone)
   const [today] = useState(() => new Date())
@@ -84,6 +85,8 @@ export function DashboardPage() {
               Showing {periodText} ({data.period.timezone}). Figures marked &ldquo;Right now&rdquo; ignore the period.
             </p>
             <KpiCards kpis={data.kpis} period="This period" />
+
+            {can('workforce:manage') && <WorkforcePanel />}
 
             <div className="grid gap-6 lg:grid-cols-2">
               <Card>
