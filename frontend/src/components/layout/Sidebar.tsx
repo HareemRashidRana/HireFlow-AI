@@ -7,7 +7,16 @@ import { useAuth } from '../../auth/useAuth'
 import { useApiHealth } from '../../hooks/useApiHealth'
 import type { ApiHealth } from '../../hooks/useApiHealth'
 import { Avatar } from '../ui/Avatar'
-import { BriefcaseIcon, ContactIcon, KeyIcon, LogoutIcon, UserIcon, UsersIcon } from '../ui/icons'
+import {
+  BriefcaseIcon,
+  ClipboardIcon,
+  ContactIcon,
+  KanbanIcon,
+  KeyIcon,
+  LogoutIcon,
+  UserIcon,
+  UsersIcon,
+} from '../ui/icons'
 import { Spinner } from '../ui/Spinner'
 import { useToast } from '../ui/Toast'
 import { Logo } from './Logo'
@@ -26,6 +35,8 @@ const nav: NavItem[] = [
   { to: '/employees', label: 'Employees', icon: UsersIcon, permission: 'employees:read' },
   { to: '/recruitment/jobs', label: 'Jobs', icon: BriefcaseIcon, permission: 'recruitment:read' },
   { to: '/recruitment/candidates', label: 'Candidates', icon: ContactIcon, permission: 'recruitment:read' },
+  { to: '/recruitment/applications', label: 'Applications', icon: ClipboardIcon, permission: 'recruitment:read' },
+  { to: '/recruitment/pipeline', label: 'Pipeline', icon: KanbanIcon, permission: 'recruitment:read' },
   { to: '/profile', label: 'My profile', icon: UserIcon, needsEmployeeRecord: true },
 ]
 

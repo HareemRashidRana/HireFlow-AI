@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../../../api/errors'
-import { isoDaysFromToday, makeCandidate } from '../../../test/fixtures'
+import { isoDaysFromToday, makeApplicationItem, makeCandidate } from '../../../test/fixtures'
 import { renderAs } from '../../../test/render'
 import type { UserRole } from '../../../types/auth'
 import type { Candidate } from '../../../types/candidate'
@@ -11,6 +11,8 @@ import { CandidateDetailPage } from './CandidateDetailPage'
 
 const get = vi.fn()
 const remove = vi.fn()
+const listApplications = vi.fn()
+vi.mock('../../../api/applications', () => ({ applicationsApi: { list: (...a: unknown[]) => listApplications(...a) } }))
 vi.mock('../../../api/candidates', () => ({
   candidatesApi: { get: (...a: unknown[]) => get(...a), remove: (...a: unknown[]) => remove(...a) },
 }))
@@ -18,6 +20,8 @@ vi.mock('../../../api/candidates', () => ({
 beforeEach(() => {
   get.mockReset()
   remove.mockReset()
+  listApplications.mockReset()
+  listApplications.mockResolvedValue({ items: [], total: 0, page: 1, page_size: 20, stage_counts: {} })
 })
 
 function render(candidate: Candidate, role: UserRole = 'recruiter') {
@@ -194,5 +198,44 @@ describe('errors', () => {
   it('has a back link to the directory', async () => {
     render(makeCandidate())
     expect((await screen.findByRole('link', { name: /all candidates/i })).getAttribute('href')).toBe('/recruitment/candidates')
+  })
+})
+
+describe('applications', () => {
+  it('lists the jobs this candidate applied to, with stage and a link to each application', async () => {
+    listApplications.mockResolvedValue({
+      items: [
+        makeApplicationItem({ id: 'a1', stage: 'interview', job: { id: 'j1', title: 'Backend Engineer', department: 'Engineering', status: 'open' } }),
+        makeApplicationItem({ id: 'a2', stage: 'rejected', job: { id: 'j2', title: 'Data Analyst', department: 'Data', status: 'open' } }),
+      ],
+      total: 2, page: 1, page_size: 20, stage_counts: {},
+    })
+    render(makeCandidate({ id: 'cand-7' }))
+    await heading()
+    const link = await screen.findByRole('link', { name: /Backend Engineer/ })
+    expect(link.getAttribute('href')).toBe('/recruitment/applications/a1')
+    expect(within(link).getByText('Interview')).toBeTruthy()
+    expect(within(screen.getByRole('link', { name: /Data Analyst/ })).getByText('Rejected')).toBeTruthy()
+    expect(listApplications.mock.calls[0][0]).toMatchObject({ candidate_id: 'cand-7' })
+  })
+
+  it('says when the candidate has not applied anywhere', async () => {
+    render(makeCandidate())
+    expect(await screen.findByText('Not applied to any job yet.')).toBeTruthy()
+  })
+
+  it('shows an error with retry, without breaking the rest of the page', async () => {
+    listApplications.mockRejectedValueOnce(new ApiError('nope', 500))
+    const { user } = render(makeCandidate())
+    expect((await heading()).textContent).toBe('Sana Iqbal')
+    expect(await screen.findByText(/Couldn't load applications/)).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(await screen.findByText('Not applied to any job yet.')).toBeTruthy()
+  })
+
+  it('offers "Add to a job" with only the candidate id in the link', async () => {
+    render(makeCandidate({ id: 'cand-7' }))
+    await heading()
+    expect(screen.getByRole('link', { name: 'Add to a job' }).getAttribute('href')).toBe('/recruitment/applications/new?candidate=cand-7')
   })
 })

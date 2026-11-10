@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { applicationsApi } from '../../../api/applications'
 import { candidatesApi } from '../../../api/candidates'
 import { useAuth } from '../../../auth/useAuth'
 import { Avatar } from '../../../components/ui/Avatar'
@@ -15,6 +16,7 @@ import { useQuery } from '../../../hooks/useQuery'
 import { formatDate, formatShortDate } from '../../../lib/format'
 import { DeleteCandidateDialog } from '../components/DeleteCandidateDialog'
 import { RetentionBadge } from '../components/RetentionBadge'
+import { StageBadge } from '../components/StageBadge'
 import { candidateSourceLabels, consentBasisLabels } from '../lib/candidateOptions'
 
 function Detail({ label, children }: { label: string; children: ReactNode }) {
@@ -92,7 +94,12 @@ export function CandidateDetailPage() {
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {canWrite && !anonymized && (
+              <Link to={`/recruitment/applications/new?candidate=${encodeURIComponent(candidate.id)}`} className={buttonClasses('secondary')}>
+                Add to a job
+              </Link>
+            )}
             {canWrite && !anonymized && (
               <Link to={`/recruitment/candidates/${candidate.id}/edit`} className={buttonClasses('secondary')}>
                 <PencilIcon className="size-4" /> Edit
@@ -132,6 +139,8 @@ export function CandidateDetailPage() {
               <Detail label="Source">{candidateSourceLabels[candidate.source]}</Detail>
             </dl>
           </Card>
+
+          <CandidateApplications candidateId={candidate.id} />
 
           <Card>
             <CardHeader title="Current role" />
@@ -184,6 +193,45 @@ export function CandidateDetailPage() {
         />
       )}
     </>
+  )
+}
+
+/** The jobs this candidate applied to. A candidate with applications cannot be deleted. */
+function CandidateApplications({ candidateId }: { candidateId: string }) {
+  const { data, error, loading, reload } = useQuery(
+    (s) => applicationsApi.list({ candidate_id: candidateId, page_size: 20 }, s),
+    `apps-${candidateId}`,
+  )
+  return (
+    <Card>
+      <CardHeader title="Applications" />
+      {loading && !data ? (
+        <p className="px-5 py-5 text-sm text-slate-500 sm:px-6">Loading applications…</p>
+      ) : error && !data ? (
+        <p role="alert" className="px-5 py-5 text-sm text-rose-600 sm:px-6">
+          Couldn't load applications.{' '}
+          <button type="button" onClick={reload} className="font-medium underline">
+            Retry
+          </button>
+        </p>
+      ) : data && data.items.length > 0 ? (
+        <ul className="divide-y divide-slate-100">
+          {data.items.map((a) => (
+            <li key={a.id}>
+              <Link to={`/recruitment/applications/${a.id}`} className="flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-lavender-50/60 sm:px-6">
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium text-navy-900">{a.job.title}</span>
+                  <span className="block text-xs text-slate-500">Applied {formatShortDate(a.applied_at)}</span>
+                </span>
+                <StageBadge stage={a.stage} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="px-5 py-5 text-sm text-slate-500 sm:px-6">Not applied to any job yet.</p>
+      )}
+    </Card>
   )
 }
 

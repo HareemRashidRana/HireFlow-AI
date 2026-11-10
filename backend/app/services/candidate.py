@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core import security
 from app.core.config import settings
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
+from app.models.application import Application
 from app.models.candidate import Candidate, CandidateSource
 from app.models.user import User
 from app.schemas.candidate import (
@@ -170,6 +171,9 @@ def update_candidate(db: Session, candidate_id: uuid.UUID, data: CandidateUpdate
 def delete_candidate(db: Session, candidate_id: uuid.UUID) -> None:
     """Hard delete, for entries made by mistake. (Erasure of a real person is anonymization.)"""
     candidate = get_candidate(db, candidate_id)
+    if db.scalar(select(Application.id).where(Application.candidate_id == candidate.id).limit(1)):
+        # Applications are hiring history; they are never deleted along with the person.
+        raise ConflictError("This candidate has application history and cannot be deleted")
     db.delete(candidate)
     db.commit()
     logger.info("Candidate deleted id=%s", candidate_id)

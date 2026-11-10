@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.core import security
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
+from app.models.application import Application
 from app.models.employee import Employee, EmploymentStatus, EmploymentType
 from app.models.job import JobPosting, JobStatus
 from app.models.user import User
@@ -187,5 +188,7 @@ def delete_job(db: Session, job_id: uuid.UUID) -> None:
     job = get_job(db, job_id)
     if job.status != JobStatus.DRAFT:
         raise ConflictError("Only draft jobs can be deleted. Close the job instead.")
+    if db.scalar(select(Application.id).where(Application.job_id == job.id).limit(1)):
+        raise ConflictError("This job has applications and cannot be deleted")
     db.delete(job)
     db.commit()

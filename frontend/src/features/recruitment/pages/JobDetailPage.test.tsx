@@ -238,3 +238,24 @@ describe('errors', () => {
     expect((await screen.findByRole('link', { name: /all jobs/i })).getAttribute('href')).toBe('/recruitment/jobs')
   })
 })
+
+describe('applications links', () => {
+  it('links to this job\'s applications (an id in the URL, no personal data)', async () => {
+    render(makeJob({ id: 'job-5', status: 'open' }))
+    await screen.findByRole('heading', { level: 1 })
+    expect(link('Applications')!.getAttribute('href')).toBe('/recruitment/applications?job=job-5')
+  })
+
+  it('offers "Add application" only while the job is open', async () => {
+    const open = render(makeJob({ id: 'job-5', status: 'open' }))
+    await screen.findByRole('heading', { level: 1 })
+    expect(link('Add application')!.getAttribute('href')).toBe('/recruitment/applications/new?job=job-5')
+    open.unmount()
+    for (const status of ['draft', 'on_hold', 'closed'] as const) {
+      const view = render(makeJob({ id: 'job-5', status }))
+      await screen.findByRole('heading', { level: 1 })
+      expect(link('Add application')).toBeNull()
+      view.unmount()
+    }
+  })
+})

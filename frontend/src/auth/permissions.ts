@@ -14,6 +14,7 @@ export type Permission =
   | 'recruitment:write'
   | 'recruitment:delete'
   | 'candidates:delete'
+  | 'applications:assign'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -26,6 +27,11 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   // Candidates use recruitment:read / recruitment:write for viewing and editing. Deleting one is
   // wider than deleting a job (HR handles data corrections) but still not open to recruiters.
   'candidates:delete': ['admin', 'hr_manager'],
+  // Applications use recruitment:read / recruitment:write. Assigning ANY recruiter is HR / admin
+  // only (a recruiter can only take an application for themselves). Hiring and reopening are also
+  // HR / admin only, but the server tells the UI per application what is allowed, so no permission
+  // is needed for them here.
+  'applications:assign': ['admin', 'hr_manager'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {

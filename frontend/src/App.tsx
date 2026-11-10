@@ -10,6 +10,10 @@ import { EmployeeDetailPage } from './features/employees/pages/EmployeeDetailPag
 import { EmployeeEditPage } from './features/employees/pages/EmployeeEditPage'
 import { EmployeesPage } from './features/employees/pages/EmployeesPage'
 import { ProfilePage } from './features/employees/pages/ProfilePage'
+import { ApplicationCreatePage } from './features/recruitment/pages/ApplicationCreatePage'
+import { ApplicationDetailPage } from './features/recruitment/pages/ApplicationDetailPage'
+import { ApplicationsPage } from './features/recruitment/pages/ApplicationsPage'
+import { PipelineBoardPage } from './features/recruitment/pages/PipelineBoardPage'
 import { CandidateCreatePage } from './features/recruitment/pages/CandidateCreatePage'
 import { CandidateDetailPage } from './features/recruitment/pages/CandidateDetailPage'
 import { CandidateEditPage } from './features/recruitment/pages/CandidateEditPage'
@@ -90,6 +94,24 @@ function App() {
               <Route
                 path="recruitment/candidates/:id/edit"
                 element={<RequirePermission permission="recruitment:write"><CandidateEditPage /></RequirePermission>}
+              />
+
+              {/* Recruitment: applications and the pipeline board. */}
+              <Route
+                path="recruitment/applications"
+                element={<RequirePermission permission="recruitment:read"><ApplicationsPage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/applications/new"
+                element={<RequirePermission permission="recruitment:write"><ApplicationCreatePage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/applications/:id"
+                element={<RequirePermission permission="recruitment:read"><ApplicationDetailPage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/pipeline"
+                element={<RequirePermission permission="recruitment:read"><PipelineBoardPage /></RequirePermission>}
               />
             </Route>
 

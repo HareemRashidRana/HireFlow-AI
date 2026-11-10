@@ -1,4 +1,10 @@
 # Import every model here so Alembic autogenerate can discover it.
+from app.models.application import (
+    Application,
+    ApplicationEvent,
+    ApplicationEventType,
+    ApplicationStage,
+)
 from app.models.candidate import Candidate, CandidateSource, ConsentBasis
 from app.models.employee import Employee, EmploymentStatus, EmploymentType
 from app.models.job import JobPosting, JobStatus
@@ -7,6 +13,10 @@ from app.models.refresh_token import RefreshToken
 from app.models.user import User, UserRole
 
 __all__ = [
+    "Application",
+    "ApplicationEvent",
+    "ApplicationEventType",
+    "ApplicationStage",
     "Candidate",
     "CandidateSource",
     "ConsentBasis",

@@ -48,9 +48,9 @@ describe('sidebar navigation by role', () => {
   const navLabels = () =>
     [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')].map((a) => a.textContent?.trim())
 
-  it.each(['admin', 'hr_manager', 'recruiter'] as const)('%s sees Employees, Jobs and Candidates', (role: UserRole) => {
+  it.each(['admin', 'hr_manager', 'recruiter'] as const)('%s sees Employees, Jobs, Candidates, Applications and Pipeline', (role: UserRole) => {
     renderAs(<Sidebar />, { role })
-    expect(navLabels()).toEqual(expect.arrayContaining(['Employees', 'Jobs', 'Candidates']))
+    expect(navLabels()).toEqual(expect.arrayContaining(['Employees', 'Jobs', 'Candidates', 'Applications', 'Pipeline']))
   })
 
   it('the Candidates link goes to the candidate directory', () => {
@@ -64,7 +64,13 @@ describe('sidebar navigation by role', () => {
     expect(jobs.getAttribute('href')).toBe('/recruitment/jobs')
   })
 
-  it('employees do not see Jobs, Candidates or Employees; they only get their own profile', () => {
+  it('the Applications and Pipeline links go to their pages', () => {
+    renderAs(<Sidebar />, { role: 'recruiter' })
+    expect(screen.getByRole('link', { name: 'Applications' }).getAttribute('href')).toBe('/recruitment/applications')
+    expect(screen.getByRole('link', { name: 'Pipeline' }).getAttribute('href')).toBe('/recruitment/pipeline')
+  })
+
+  it('employees see none of the recruitment links (Jobs, Candidates, Applications, Pipeline); they only get their own profile', () => {
     renderAs(<Sidebar />, { role: 'employee' })
     expect(navLabels()).toEqual(['My profile'])
   })

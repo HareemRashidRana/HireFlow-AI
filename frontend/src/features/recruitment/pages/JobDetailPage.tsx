@@ -106,6 +106,14 @@ export function JobDetailPage() {
 
           {canWrite && (
             <div className="flex flex-wrap gap-2">
+              <Link to={`/recruitment/applications?job=${encodeURIComponent(job.id)}`} className={buttonClasses('secondary')}>
+                Applications
+              </Link>
+              {job.status === 'open' && (
+                <Link to={`/recruitment/applications/new?job=${encodeURIComponent(job.id)}`} className={buttonClasses('secondary')}>
+                  Add application
+                </Link>
+              )}
               <JobStatusActions job={job} onChanged={setOverride} />
               {isEditable(job) && (
                 <Link to={`/recruitment/jobs/${job.id}/edit`} className={buttonClasses('secondary')}>

@@ -161,3 +161,16 @@ export const ContactIcon = (p: IconProps) => (
     <path d="M7 16.5a4.5 4.5 0 0 1 8.5 0M20.5 7.5v2M20.5 12.5v2" />
   </Svg>
 )
+export const ClipboardIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="5" y="4.5" width="14" height="16" rx="2.5" />
+    <path d="M9 4.5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v.5M9 10.5h6M9 14.5h4" />
+  </Svg>
+)
+export const KanbanIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="4" width="5" height="16" rx="1.5" />
+    <rect x="10.5" y="4" width="5" height="10" rx="1.5" />
+    <rect x="17.5" y="4" width="3" height="13" rx="1.5" />
+  </Svg>
+)
