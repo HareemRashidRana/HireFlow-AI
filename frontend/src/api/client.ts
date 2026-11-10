@@ -16,6 +16,8 @@ export { ApiError, isAbortError } from './errors'
 
 export interface RequestOptions extends Omit<RequestInit, 'body'> {
   json?: unknown
+  /** A multipart body (file uploads). The browser adds the Content-Type and boundary itself. */
+  formData?: FormData
   /** Set false for public endpoints. They are neither given a token nor refreshed on 401. */
   auth?: boolean
 }
@@ -38,7 +40,7 @@ export function createHttpClient(
   fetchImpl: typeof fetch = (...args) => fetch(...args),
 ): HttpClient {
   async function send(path: string, options: RequestOptions, token: string | null): Promise<Response> {
-    const { json, auth: _auth, headers, ...rest } = options
+    const { json, formData, auth: _auth, headers, ...rest } = options
     try {
       return await fetchImpl(`/api/v1${path}`, {
         ...rest,
@@ -48,7 +50,7 @@ export function createHttpClient(
           ...(token !== null && { Authorization: `Bearer ${token}` }),
           ...headers,
         },
-        body: json !== undefined ? JSON.stringify(json) : undefined,
+        body: formData ?? (json !== undefined ? JSON.stringify(json) : undefined),
       })
     } catch (error) {
       if (isAbortError(error)) throw error

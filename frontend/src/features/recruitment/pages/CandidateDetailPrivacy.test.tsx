@@ -13,6 +13,9 @@ const audit = vi.fn()
 const preview = vi.fn()
 vi.mock('../../../api/candidates', () => ({ candidatesApi: { get: (...a: unknown[]) => get(...a), remove: vi.fn() } }))
 vi.mock('../../../api/applications', () => ({ applicationsApi: { list: async () => ({ items: [], total: 0, page: 1, page_size: 20, stage_counts: {} }) } }))
+vi.mock('../../../api/resumes', () => ({
+  resumesApi: { list: async () => ({ items: [], total: 0, page: 1, page_size: 50 }) },
+}))
 vi.mock('../../../api/privacy', () => ({
   privacyApi: { audit: (...a: unknown[]) => audit(...a), anonymizationPreview: (...a: unknown[]) => preview(...a), anonymize: vi.fn(), exportOne: vi.fn() },
 }))

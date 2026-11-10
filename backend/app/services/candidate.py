@@ -20,7 +20,8 @@ from app.schemas.candidate import (
     RetentionFilter,
     check_basis_note,
 )
-from app.services import audit
+from app.services import audit, resume_storage
+from app.services import resume as resume_service
 
 # Candidate personal data is never written to logs: only ids.
 logger = logging.getLogger(__name__)
@@ -235,13 +236,16 @@ def delete_candidate(
     if db.scalar(select(Application.id).where(Application.candidate_id == candidate.id).limit(1)):
         # Applications are hiring history; they are never deleted along with the person.
         raise ConflictError("This candidate has application history and cannot be deleted")
+    resume_keys = resume_service.storage_keys(db, [candidate.id]).get(candidate.id, [])
     audit.record(
         db,
         AuditEventType.CANDIDATE_DELETED,
         actor=actor,
         candidate_id=candidate.id,
+        metadata={"resumes_removed": len(resume_keys)},
         request_id=request_id,
     )
-    db.delete(candidate)
+    db.delete(candidate)  # the resume rows cascade; their files are removed right after the commit
     db.commit()
+    resume_storage.delete_many(resume_keys)
     logger.info("Candidate deleted id=%s", candidate_id)

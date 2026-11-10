@@ -24,6 +24,7 @@ class AnonymizationPreview(BaseModel):
     application_count: int
     application_notes_cleared: int
     history_notes_cleared: int
+    resumes_removed: int = 0  # resume FILES that would be permanently deleted
 
 
 class AnonymizeRequest(BaseModel):

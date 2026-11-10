@@ -6,6 +6,11 @@ psycopg[binary]==3.3.8
 pydantic-settings==2.16.2
 email-validator==2.3.0
 
+# resumes: uploads and text extraction
+python-multipart==0.0.33
+pypdf==7.0.0
+python-docx==1.2.0
+
 # authentication
 pwdlib[argon2]==0.3.1
 argon2-cffi==25.1.0

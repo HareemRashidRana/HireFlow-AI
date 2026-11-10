@@ -50,6 +50,8 @@ export interface AnonymizationPreview {
   application_count: number
   application_notes_cleared: number
   history_notes_cleared: number
+  /** Resume files that would be permanently deleted from storage. */
+  resumes_removed: number
 }
 
 export type AuditEventType =
@@ -61,6 +63,15 @@ export type AuditEventType =
   | 'candidate_anonymized'
   | 'candidate_deleted'
   | 'candidate_purged'
+  | 'resume_uploaded'
+  | 'resume_downloaded'
+  | 'resume_viewed'
+  | 'resume_parsed'
+  | 'resume_parse_retried'
+  | 'resume_reviewed'
+  | 'resume_activated'
+  | 'resume_updated'
+  | 'resume_deleted'
 
 export interface AuditEvent {
   id: string

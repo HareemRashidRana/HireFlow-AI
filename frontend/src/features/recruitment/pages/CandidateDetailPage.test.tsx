@@ -13,6 +13,9 @@ const get = vi.fn()
 const remove = vi.fn()
 const listApplications = vi.fn()
 vi.mock('../../../api/applications', () => ({ applicationsApi: { list: (...a: unknown[]) => listApplications(...a) } }))
+vi.mock('../../../api/resumes', () => ({
+  resumesApi: { list: async () => ({ items: [], total: 0, page: 1, page_size: 50 }) },
+}))
 vi.mock('../../../api/candidates', () => ({
   candidatesApi: { get: (...a: unknown[]) => get(...a), remove: (...a: unknown[]) => remove(...a) },
 }))

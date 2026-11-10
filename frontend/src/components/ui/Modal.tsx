@@ -7,10 +7,12 @@ interface ModalProps {
   title: string
   children: ReactNode
   footer?: ReactNode
+  /** For long forms: a wider dialog that scrolls inside the viewport instead of running off it. */
+  wide?: boolean
 }
 
 /** Built on the native <dialog>: focus trap, Esc to close and aria-modal come for free. */
-export function Modal({ open, onClose, title, children, footer }: ModalProps) {
+export function Modal({ open, onClose, title, children, footer, wide = false }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
         if (e.target === ref.current) onClose() // click on the backdrop
       }}
       aria-labelledby="modal-title"
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-slate-200 bg-white p-0 text-navy-900 shadow-2xl backdrop:bg-navy-950/50 backdrop:backdrop-blur-[2px]"
+      className={`m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] ${wide ? 'max-w-3xl' : 'max-w-md'} overflow-y-auto rounded-2xl border border-slate-200 bg-white p-0 text-navy-900 shadow-2xl backdrop:bg-navy-950/50 backdrop:backdrop-blur-[2px]`}
     >
       {open && (
         <div className="p-6">

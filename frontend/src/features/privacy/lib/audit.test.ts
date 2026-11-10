@@ -11,6 +11,8 @@ describe('audit labels', () => {
     expect(auditEventTypes).toEqual([
       'candidate_viewed', 'candidate_created', 'candidate_updated', 'consent_changed',
       'candidate_exported', 'candidate_anonymized', 'candidate_deleted', 'candidate_purged',
+      'resume_uploaded', 'resume_downloaded', 'resume_viewed', 'resume_parsed', 'resume_parse_retried',
+      'resume_reviewed', 'resume_activated', 'resume_updated', 'resume_deleted',
     ])
     for (const t of auditEventTypes) expect(auditEventLabels[t]).toBeTruthy()
   })
@@ -19,6 +21,13 @@ describe('audit labels', () => {
 describe('describeAudit', () => {
   it.each([
     [ev('candidate_viewed'), 'Profile viewed'],
+    [ev('resume_uploaded', { version: 3, resume_id: 'r' }), 'Resume uploaded (version 3)'],
+    [ev('resume_uploaded'), 'Resume uploaded'],
+    [ev('resume_parsed', { status: 'no_text' }), 'Resume read: no text'],
+    [ev('resume_parse_retried', { status: 'parsed' }), 'Resume read again: parsed'],
+    [ev('resume_downloaded', { version: 1 }), 'Resume downloaded'],
+    [ev('resume_reviewed'), 'Resume details reviewed'],
+    [ev('resume_deleted', { version: 2 }), 'Resume deleted'],
     [ev('candidate_created', { consent_basis: 'consent' }), 'Candidate added'],
     [ev('candidate_updated', { fields: ['phone', 'current_title'] }), 'Details edited: phone, current title'],
     [ev('candidate_updated', { fields: ['mystery_field'] }), 'Details edited: mystery_field'],

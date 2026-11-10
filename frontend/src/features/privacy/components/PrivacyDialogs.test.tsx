@@ -35,7 +35,7 @@ const preview = (over: Partial<AnonymizationPreview> = {}): AnonymizationPreview
   fields_cleared: ['phone', 'location', 'current_title', 'current_company', 'consent_basis_note'],
   fields_replaced: ['first_name', 'last_name', 'email'],
   fields_kept: ['source', 'consent_basis', 'consent_date', 'retain_until'],
-  application_count: 2, application_notes_cleared: 1, history_notes_cleared: 3, ...over,
+  application_count: 2, application_notes_cleared: 1, history_notes_cleared: 3, resumes_removed: 0, ...over,
 })
 
 describe('AnonymizeDialog', () => {
@@ -54,6 +54,26 @@ describe('AnonymizeDialog', () => {
     expect(screen.getByText(/2 applications and every stage change are kept/)).toBeTruthy()
     expect(screen.getByText(/1 on applications, 3 in the history/)).toBeTruthy()
     expect(api.anonymize).not.toHaveBeenCalled()
+  })
+
+  it('warns that resume files are permanently deleted, with the right count', async () => {
+    api.anonymizationPreview.mockResolvedValue(preview({ resumes_removed: 2 }))
+    open()
+    expect(await screen.findByText(/2 resume files are permanently deleted, along with what was read from them/)).toBeTruthy()
+  })
+
+  it('uses the singular for one resume file and says nothing when there are none', async () => {
+    api.anonymizationPreview.mockResolvedValue(preview({ resumes_removed: 1 }))
+    const first = open()
+    expect(await screen.findByText(/1 resume file is permanently deleted/)).toBeTruthy()
+    first.onClose()
+  })
+
+  it('does not mention resumes when the candidate has none', async () => {
+    api.anonymizationPreview.mockResolvedValue(preview({ resumes_removed: 0 }))
+    open()
+    await screen.findByText(/First name, Last name, Email address/)
+    expect(screen.queryByText('Resumes')).toBeNull()
   })
 
   it('says so when there are no applications', async () => {

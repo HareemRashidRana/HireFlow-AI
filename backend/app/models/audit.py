@@ -19,6 +19,15 @@ class AuditEventType(enum.StrEnum):
     CANDIDATE_ANONYMIZED = "candidate_anonymized"
     CANDIDATE_DELETED = "candidate_deleted"  # a mistaken entry removed by hand
     CANDIDATE_PURGED = "candidate_purged"  # removed by a retention purge
+    RESUME_UPLOADED = "resume_uploaded"
+    RESUME_DOWNLOADED = "resume_downloaded"
+    RESUME_VIEWED = "resume_viewed"  # parsed data opened
+    RESUME_PARSED = "resume_parsed"
+    RESUME_PARSE_RETRIED = "resume_parse_retried"
+    RESUME_REVIEWED = "resume_reviewed"
+    RESUME_ACTIVATED = "resume_activated"
+    RESUME_UPDATED = "resume_updated"  # linked to / unlinked from an application
+    RESUME_DELETED = "resume_deleted"
 
 
 class CandidateAuditEvent(Base):

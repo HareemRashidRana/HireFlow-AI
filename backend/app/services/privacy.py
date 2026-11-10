@@ -24,7 +24,8 @@ from app.models.audit import AuditEventType
 from app.models.candidate import Candidate, ConsentBasis
 from app.models.user import User, UserRole
 from app.schemas.privacy import RetentionStatus
-from app.services import audit
+from app.services import audit, resume_storage
+from app.services import resume as resume_service
 from app.services.candidate import EXPIRING_WINDOW_DAYS, get_candidate
 
 logger = logging.getLogger(__name__)  # ids and counts only, never personal data
@@ -84,6 +85,7 @@ def anonymization_preview(db: Session, candidate_id: uuid.UUID) -> dict:
         "application_count": apps,
         "application_notes_cleared": app_notes,
         "history_notes_cleared": history_notes,
+        "resumes_removed": resume_service.count_for_candidate(db, candidate.id),
     }
 
 
@@ -124,6 +126,10 @@ def anonymize_candidate(
         return get_candidate(db, candidate_id), False
 
     apps, app_notes, history_notes = _application_counts(db, candidate.id)
+    resumes = resume_service.count_for_candidate(db, candidate.id)
+    # A CV is inherently identifying, so anonymizing removes the resume FILES (rows stay as bare
+    # tombstones). The files are deleted after the commit below.
+    resume_keys = resume_service.tombstone_for_candidate(db, candidate.id)
     own_apps = select(Application.id).where(Application.candidate_id == candidate.id)
     # Bulk statements (not ORM objects): the one deliberate exception to "history is append-only",
     # limited to the free-text note columns. Stages, event types, actors and timestamps stay.
@@ -146,11 +152,13 @@ def anonymize_candidate(
             "applications": apps,
             "application_notes_cleared": app_notes,
             "history_notes_cleared": history_notes,
+            "resumes_removed": resumes,
         },
         request_id=request_id,
         now=now,
     )
     db.commit()
+    resume_storage.delete_many(resume_keys)  # after the commit; a failure leaves an orphan
     logger.info("Candidate anonymized id=%s", candidate.id)
     return get_candidate(db, candidate_id), True
 
@@ -309,6 +317,9 @@ def purge(
     if confirm != PURGE_CONFIRMATION:
         raise BusinessRuleError(f"Type {PURGE_CONFIRMATION} to confirm a permanent deletion.")
 
+    # Resume rows go with their candidate (ON DELETE CASCADE, same transaction). Note which files
+    # belong to the batch now; only files of candidates that were REALLY deleted are removed after.
+    batch_keys = resume_service.storage_keys(db, batch_ids)
     deleted_rows = db.execute(
         delete(Candidate)
         .where(Candidate.id.in_(batch_ids), _purge_condition(today))
@@ -324,10 +335,12 @@ def purge(
                 "reason": "retention_expired",
                 "retain_until": retain_until.isoformat(),
                 "was_anonymized": anonymized_at is not None,
+                "resumes_removed": len(batch_keys.get(candidate_id, [])),
             },
             request_id=request_id,
         )
     db.commit()
+    resume_storage.delete_many([k for r in deleted_rows for k in batch_keys.get(r[0], [])])
     logger.info("Retention purge deleted=%s", len(deleted_rows))
     remaining = retention_summary(db)["purge_eligible"]
     return {

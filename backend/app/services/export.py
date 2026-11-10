@@ -22,6 +22,7 @@ from app.core.exceptions import BusinessRuleError
 from app.models.application import Application
 from app.models.audit import AuditEventType
 from app.models.candidate import Candidate, CandidateSource
+from app.models.resume import Resume, ResumeStatus
 from app.models.user import User
 from app.schemas.candidate import RetentionFilter
 from app.services import audit
@@ -109,6 +110,29 @@ def _applications_for(db: Session, candidate_ids: list[uuid.UUID]) -> dict[uuid.
     return out
 
 
+def _resumes_for(db: Session, candidate_ids: list[uuid.UUID]) -> dict[uuid.UUID, list[dict]]:
+    out: dict[uuid.UUID, list[dict]] = {cid: [] for cid in candidate_ids}
+    if not candidate_ids:
+        return out
+    stmt = (
+        select(Resume)
+        .where(Resume.candidate_id.in_(candidate_ids), Resume.status != ResumeStatus.REMOVED)
+        .order_by(Resume.version_number)
+    )
+    for r in db.scalars(stmt):
+        out[r.candidate_id].append(
+            {
+                "version": r.version_number,
+                "format": r.extension,
+                "size_bytes": r.size_bytes,
+                "uploaded_at": r.created_at,
+                "active": r.is_active,
+                "status": r.status.value,
+            }
+        )
+    return out
+
+
 def _finish(
     db: Session,
     actor: User,
@@ -119,10 +143,14 @@ def _finish(
 ) -> tuple[bytes, str, str]:
     """Build the file, then log one audit event per candidate in the same transaction."""
     apps = _applications_for(db, [c.id for c in candidates])
+    resumes = _resumes_for(db, [c.id for c in candidates]) if fmt == "json" else {}
     rows = [_candidate_row(c, len(apps[c.id])) for c in candidates]
     now = security.utcnow()
     if fmt == "json":
-        payload = [{**r, "applications": apps[c.id]} for r, c in zip(rows, candidates, strict=True)]
+        payload = [
+            {**r, "applications": apps[c.id], "resumes": resumes[c.id]}
+            for r, c in zip(rows, candidates, strict=True)
+        ]
         body = json.dumps(
             {"exported_at": now, "candidates": payload}, default=_json_default, indent=2
         ).encode("utf-8")

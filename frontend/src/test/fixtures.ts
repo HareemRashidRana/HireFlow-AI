@@ -9,6 +9,7 @@ import type {
 import type { Candidate, CandidateList, CandidateListItem } from '../types/candidate'
 import type { AuthUser, UserRole } from '../types/auth'
 import type { Job, JobList, JobStatus } from '../types/job'
+import type { ParsedResume, Resume } from '../types/resume'
 
 export function makeUser(role: UserRole = 'recruiter', overrides: Partial<AuthUser> = {}): AuthUser {
   return {
@@ -219,4 +220,48 @@ export function makeBoard(items: ApplicationListItem[], perColumnLimit = 25): Bo
     }
   }
   return { columns, per_column_limit: perColumnLimit }
+}
+
+// ---------- resumes ----------
+
+export function makeResume(overrides: Partial<Resume> = {}): Resume {
+  return {
+    id: 'res-1',
+    candidate_id: 'cand-1',
+    application_id: null,
+    version_number: 1,
+    original_filename: 'sana-iqbal-cv.pdf',
+    extension: 'pdf',
+    mime_type: 'application/pdf',
+    size_bytes: 120_000,
+    status: 'parsed',
+    parse_error_code: null,
+    text_chars: 2400,
+    is_active: true,
+    created_at: '2026-11-05T09:00:00Z',
+    uploaded_by: { id: 'user-recruiter', email: 'recruiter@example.com', role: 'recruiter' },
+    parsed_at: '2026-11-05T09:00:01Z',
+    reviewed_at: null,
+    reviewed_by: null,
+    file_removed_at: null,
+    reviewed: false,
+    ...overrides,
+  }
+}
+
+export function makeParsed(overrides: Partial<ParsedResume> = {}): ParsedResume {
+  return {
+    parser_version: 1,
+    name: { value: 'Sana Iqbal', confidence: 'high' },
+    email: { value: 'sana.iqbal@example.com', confidence: 'high' },
+    phone: { value: '+92 300 1234567', confidence: 'medium' },
+    skills: { values: ['Python', 'SQL'], confidence: 'medium', source: 'skills_section' },
+    education: [{ degree: 'BSc', field: 'Computer Science', institution: 'LUMS', start_year: 2014, end_year: 2018, confidence: 'medium' }],
+    experience: [{ title: 'Backend Developer', company: 'Acme Ltd', start: '2020-01', end: null, current: true, months: 70, date_precision: 'month', confidence: 'high' }],
+    total_experience_months: 70,
+    total_experience_confidence: 'medium',
+    sections_found: ['skills', 'education', 'experience'],
+    warnings: [],
+    ...overrides,
+  }
 }

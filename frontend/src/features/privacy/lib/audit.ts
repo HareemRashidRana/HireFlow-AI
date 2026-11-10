@@ -11,6 +11,15 @@ export const auditEventLabels: Record<AuditEventType, string> = {
   candidate_anonymized: 'Anonymized',
   candidate_deleted: 'Removed (entered by mistake)',
   candidate_purged: 'Permanently deleted',
+  resume_uploaded: 'Resume uploaded',
+  resume_downloaded: 'Resume downloaded',
+  resume_viewed: 'Resume details viewed',
+  resume_parsed: 'Resume read',
+  resume_parse_retried: 'Resume read again',
+  resume_reviewed: 'Resume details reviewed',
+  resume_activated: 'Resume made active',
+  resume_updated: 'Resume updated',
+  resume_deleted: 'Resume deleted',
 }
 
 export const auditEventTypes = Object.keys(auditEventLabels) as AuditEventType[]
@@ -52,6 +61,13 @@ export function describeAudit(e: AuditEvent): string {
         : 'Anonymized'
     case 'candidate_purged':
       return 'Permanently deleted: retention period had expired'
+    case 'resume_uploaded':
+      return typeof m.version === 'number' ? `Resume uploaded (version ${m.version})` : 'Resume uploaded'
+    case 'resume_parsed':
+    case 'resume_parse_retried':
+      return typeof m.status === 'string'
+        ? `${auditEventLabels[e.event_type]}: ${String(m.status).replace('_', ' ')}`
+        : auditEventLabels[e.event_type]
     default:
       return auditEventLabels[e.event_type]
   }

@@ -18,6 +18,7 @@ import { AnonymizeDialog } from '../../privacy/components/AnonymizeDialog'
 import { AuditList } from '../../privacy/components/AuditList'
 import { ExportDialog } from '../../privacy/components/ExportDialog'
 import { DeleteCandidateDialog } from '../components/DeleteCandidateDialog'
+import { ResumesCard } from '../components/ResumesCard'
 import { RetentionBadge } from '../components/RetentionBadge'
 import { StageBadge } from '../components/StageBadge'
 import { candidateSourceLabels, consentBasisLabels } from '../lib/candidateOptions'
@@ -157,6 +158,8 @@ export function CandidateDetailPage() {
           </Card>
 
           <CandidateApplications candidateId={candidate.id} />
+
+          <ResumesCard candidateId={candidate.id} anonymized={anonymized} />
 
           <Card>
             <CardHeader title="Current role" />

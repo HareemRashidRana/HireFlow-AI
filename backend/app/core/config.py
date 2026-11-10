@@ -60,6 +60,17 @@ class Settings(BaseSettings):
     # One export never contains more candidates than this; larger requests are refused, not cut off.
     EXPORT_MAX_ROWS: int = Field(default=500, ge=1, le=5000)
 
+    # --- Resumes ---
+    # Private folder for uploaded resume files. Relative paths are resolved against backend/. It
+    # must
+    # never be served as static content; files are only reachable through the authenticated API.
+    RESUME_STORAGE_DIR: str = "storage/resumes"
+    RESUME_MAX_BYTES: int = Field(default=5 * 1024 * 1024, ge=1024, le=25 * 1024 * 1024)
+    RESUME_MAX_PER_CANDIDATE: int = Field(default=20, ge=1, le=200)
+    # Extracted text is cut at this many characters (the parser only needs the start of a CV).
+    RESUME_MAX_TEXT_CHARS: int = Field(default=200_000, ge=1000, le=2_000_000)
+    RESUME_MAX_PDF_PAGES: int = Field(default=40, ge=1, le=500)
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def database_url(self) -> URL:

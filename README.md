@@ -2,7 +2,7 @@
 
 > AI-assisted HR Management System: recruitment, employee records, leave and attendance, in one full-stack app.
 
-**Status:** Employee Management, Authentication/RBAC and Recruitment (jobs, candidates, applications, pipeline board, candidate privacy and retention) are built. Leave, attendance, AI screening and dashboards are planned (see [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)).
+**Status:** Employee Management, Authentication/RBAC and Recruitment (jobs, candidates, applications, pipeline board, candidate privacy and retention, resume upload and parsing) are built. Leave, attendance, match scoring and dashboards are planned (see [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)).
 
 ## Features
 
@@ -11,8 +11,9 @@
 - **Departments (planned):** proper department records
 - **Recruitment (built):** job postings, candidates, applications and a hiring pipeline board with one-step stage rules, rejection reasons, per-column paging and filters
 - **Candidate privacy (built):** audit trail, anonymization, export (CSV/JSON), retention review and an opt-in, admin-only purge. See [docs/RECRUITMENT_PRIVACY.md](docs/RECRUITMENT_PRIVACY.md) for behaviour, permissions and limits (this is tooling, not a compliance guarantee)
+- **Resumes (built):** secure PDF/DOCX upload, private storage, version history with one active resume, deterministic text extraction and parsing with confidence, and a human review step (parsed data never changes a candidate on its own). No OCR and no scoring. See [docs/RESUMES.md](docs/RESUMES.md) for behaviour, limits and operations
 - **Interview scheduling (planned)**
-- **AI screening:** resume parsing and candidate-to-job match scoring
+- **AI screening:** candidate-to-job match scoring (resume parsing is built, see above)
 - **Leave and attendance:** requests, approvals, balances
 - **Dashboard:** headcount, hiring funnel and leave analytics
 
@@ -123,6 +124,10 @@ Sign in at http://localhost:5173/login with the admin account you created. Accou
 ### Candidate privacy settings
 
 `backend/.env.example` documents `CANDIDATE_RETENTION_MONTHS` (default 12), `PRIVACY_PURGE_ENABLED` (default `false`: permanent deletion is off unless you turn it on) and `EXPORT_MAX_ROWS`. Nothing is ever deleted automatically.
+
+### Resume storage settings
+
+Resume files are kept **outside the database**, in a private folder that is never served over HTTP: `RESUME_STORAGE_DIR` (default `storage/resumes` under `backend/`, git-ignored), with `RESUME_MAX_BYTES` (default 5 MB) and `RESUME_MAX_PER_CANDIDATE` (default 20). Back this folder up together with the database. To find files no record refers to: `python scripts/cleanup_resume_files.py` (report only; add `--delete` to remove). Details in [docs/RESUMES.md](docs/RESUMES.md).
 
 ### Secrets
 

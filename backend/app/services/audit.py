@@ -23,6 +23,9 @@ FORBIDDEN_KEYS = frozenset(
         "email", "name", "first_name", "last_name", "phone", "location", "company", "title",
         "q", "query", "search", "note", "notes", "password", "token", "secret", "resume", "cv",
         "address", "value", "values", "old", "new",
+        # resumes: never a file name, file content or parsed data
+        "text", "content", "filename", "original_filename", "file_name", "parsed", "parsed_data",
+        "reviewed_data", "data",
     }
 )
 _MAX_TEXT = 100

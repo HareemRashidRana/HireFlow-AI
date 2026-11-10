@@ -132,6 +132,16 @@ function Body({ candidate, onClose, onDone }: { candidate: AnonymizeTarget } & O
               : `${p.application_count} application${p.application_count === 1 ? '' : 's'} and every stage change are kept. Staff notes are cleared: ${p.application_notes_cleared} on applications, ${p.history_notes_cleared} in the history.`}
           </dd>
         </div>
+        {p.resumes_removed > 0 && (
+          <div>
+            <dt className="font-medium text-navy-900">Resumes</dt>
+            <dd className="text-slate-600">
+              {p.resumes_removed === 1
+                ? '1 resume file is permanently deleted, along with what was read from it.'
+                : `${p.resumes_removed} resume files are permanently deleted, along with what was read from them.`}
+            </dd>
+          </div>
+        )}
       </dl>
 
       <p className="mt-4 rounded-xl bg-amber-50 px-3.5 py-2.5 text-xs text-amber-800">

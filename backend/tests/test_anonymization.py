@@ -242,7 +242,8 @@ class TestAfterwards:
         with session_factory() as db:
             event = db.scalar(select(CandidateAuditEvent).where(CandidateAuditEvent.event_type == "candidate_anonymized"))
         assert event.actor_id == hr.user.id and str(event.candidate_id) == app["candidate"]["id"]
-        assert event.event_metadata == {"applications": 1, "application_notes_cleared": 1, "history_notes_cleared": 0}
+        assert event.event_metadata == {"applications": 1, "application_notes_cleared": 1, "history_notes_cleared": 0,
+                                        "resumes_removed": 0}
 
     def test_it_can_be_undone_by_nobody(self, client):
         """There is no restore endpoint; originals are not kept anywhere."""

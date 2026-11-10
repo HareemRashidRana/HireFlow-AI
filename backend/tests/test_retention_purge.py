@@ -304,7 +304,7 @@ class TestPurgeAudit:
         assert {str(e.candidate_id) for e in events} == {world["expired_a"]["id"], world["expired_b"]["id"]}
         assert all(e.actor_id == client.user.id for e in events)
         for e in events:
-            assert set(e.event_metadata) == {"reason", "retain_until", "was_anonymized"}
+            assert set(e.event_metadata) == {"reason", "retain_until", "was_anonymized", "resumes_removed"}
             assert e.event_metadata["reason"] == "retention_expired"
         blob = json.dumps([e.event_metadata for e in events])
         assert world["expired_a"]["email"] not in blob and "Iqbal" not in blob

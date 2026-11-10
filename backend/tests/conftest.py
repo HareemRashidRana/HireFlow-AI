@@ -30,6 +30,14 @@ CSRF_HEADERS = {"X-Requested-With": "HireFlow"}
 
 
 @pytest.fixture(autouse=True)
+def isolated_resume_storage(tmp_path, monkeypatch):
+    """Every test gets its own empty storage folder: no test can ever touch real resume files."""
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "RESUME_STORAGE_DIR", str(tmp_path / "resume-storage"))
+
+
+@pytest.fixture(autouse=True)
 def fast_password_hasher(monkeypatch):
     """Argon2 is deliberately slow; use minimal cost in tests (the algorithm is unchanged)."""
     monkeypatch.setattr(

@@ -47,6 +47,22 @@ class PermissionDeniedError(AppError):
     status_code = 403
 
 
+class PayloadTooLargeError(AppError):
+    status_code = 413
+
+
+class UnsupportedMediaError(AppError):
+    """The uploaded file is not a type we accept (or is not what it claims to be)."""
+
+    status_code = 415
+
+
+class StorageUnavailableError(AppError):
+    """The server could not read or write its file storage."""
+
+    status_code = 503
+
+
 class TooManyRequestsError(AppError):
     status_code = 429
 

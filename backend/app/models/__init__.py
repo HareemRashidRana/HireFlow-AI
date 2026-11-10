@@ -11,6 +11,7 @@ from app.models.employee import Employee, EmploymentStatus, EmploymentType
 from app.models.job import JobPosting, JobStatus
 from app.models.login_attempt import LoginAttempt
 from app.models.refresh_token import RefreshToken
+from app.models.resume import Resume, ResumeStatus
 from app.models.user import User, UserRole
 
 __all__ = [
@@ -30,6 +31,8 @@ __all__ = [
     "JobStatus",
     "LoginAttempt",
     "RefreshToken",
+    "Resume",
+    "ResumeStatus",
     "User",
     "UserRole",
 ]

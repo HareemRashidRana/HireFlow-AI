@@ -17,6 +17,8 @@ export type Permission =
   | 'applications:assign'
   | 'privacy:manage'
   | 'privacy:purge'
+  | 'resumes:manage'
+  | 'resumes:delete'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -39,6 +41,10 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   // server also needs PRIVACY_PURGE_ENABLED). The API enforces all of this; this just shapes the UI.
   'privacy:manage': ['admin', 'hr_manager'],
   'privacy:purge': ['admin'],
+  // Resumes: view, download, upload, re-read, review and make active for recruitment staff.
+  // Deleting a resume file is HR / admin only. Employees get nothing. The API enforces all of it.
+  'resumes:manage': ['admin', 'hr_manager', 'recruiter'],
+  'resumes:delete': ['admin', 'hr_manager'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {
