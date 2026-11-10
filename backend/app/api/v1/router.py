@@ -6,6 +6,7 @@ from app.api.v1 import (
     candidates,
     employees,
     health,
+    interviews,
     jobs,
     privacy,
     resumes,
@@ -24,3 +25,4 @@ api_router.include_router(applications.router)
 api_router.include_router(privacy.router)
 api_router.include_router(resumes.router)
 api_router.include_router(screening.router)
+api_router.include_router(interviews.router)

@@ -14,6 +14,12 @@ const update = vi.fn()
 const recruiters = vi.fn()
 const changeStage = vi.fn()
 const reopen = vi.fn()
+vi.mock('../../../api/interviews', () => ({
+  interviewsApi: {
+    forApplication: async () => ({ items: [], total: 0, page: 1, page_size: 50 }),
+    interviewers: async () => [],
+  },
+}))
 vi.mock('../../../api/screening', () => ({
   screeningApi: {
     forApplication: async () => ({
@@ -131,7 +137,7 @@ describe('content', () => {
     const app = makeApplication({ allowed_stages: ['rejected', 'withdrawn'] })
     render({ ...app, job: { ...app.job, status: 'closed' } })
     await heading()
-    expect(screen.getByRole('status').textContent).toMatch(/job is closed/)
+    expect(screen.getAllByRole('status').some((el) => /job is closed/.test(el.textContent ?? ''))).toBe(true)
   })
 
   it('shows a not-found message for an unknown application', async () => {

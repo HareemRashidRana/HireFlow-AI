@@ -14,6 +14,9 @@ describe('audit labels', () => {
       'resume_uploaded', 'resume_downloaded', 'resume_viewed', 'resume_parsed', 'resume_parse_retried',
       'resume_reviewed', 'resume_activated', 'resume_updated', 'resume_deleted',
       'screening_created', 'screening_viewed', 'screening_reviewed', 'screening_scrubbed',
+      'interview_created', 'interview_updated', 'interview_confirmed', 'interview_completed',
+      'interview_cancelled', 'interview_rescheduled', 'interviewers_changed', 'feedback_draft_saved',
+      'feedback_submitted', 'feedback_edited', 'interview_scrubbed',
     ])
     for (const t of auditEventTypes) expect(auditEventLabels[t]).toBeTruthy()
   })

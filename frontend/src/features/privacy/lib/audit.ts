@@ -24,6 +24,17 @@ export const auditEventLabels: Record<AuditEventType, string> = {
   screening_viewed: 'Requirements Coverage opened',
   screening_reviewed: 'Requirements Coverage reviewed',
   screening_scrubbed: 'Requirements Coverage details removed',
+  interview_created: 'Interview scheduled',
+  interview_updated: 'Interview details changed',
+  interview_confirmed: 'Interview confirmed',
+  interview_completed: 'Interview completed',
+  interview_cancelled: 'Interview cancelled',
+  interview_rescheduled: 'Interview rescheduled',
+  interviewers_changed: 'Interviewers changed',
+  feedback_draft_saved: 'Interview feedback draft saved',
+  feedback_submitted: 'Interview feedback submitted',
+  feedback_edited: 'Interview feedback edited',
+  interview_scrubbed: 'Interview notes and feedback removed',
 }
 
 export const auditEventTypes = Object.keys(auditEventLabels) as AuditEventType[]

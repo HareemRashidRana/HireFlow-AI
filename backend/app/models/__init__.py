@@ -8,6 +8,18 @@ from app.models.application import (
 from app.models.audit import AuditEventType, CandidateAuditEvent
 from app.models.candidate import Candidate, CandidateSource, ConsentBasis
 from app.models.employee import Employee, EmploymentStatus, EmploymentType
+from app.models.interview import (
+    FeedbackStatus,
+    Interview,
+    InterviewEvent,
+    InterviewEventType,
+    InterviewFeedback,
+    InterviewFeedbackRevision,
+    InterviewInterviewer,
+    InterviewMode,
+    InterviewStatus,
+    InterviewType,
+)
 from app.models.job import JobPosting, JobStatus
 from app.models.login_attempt import LoginAttempt
 from app.models.refresh_token import RefreshToken
@@ -23,6 +35,16 @@ from app.models.screening import (
 from app.models.user import User, UserRole
 
 __all__ = [
+    "FeedbackStatus",
+    "Interview",
+    "InterviewEvent",
+    "InterviewEventType",
+    "InterviewFeedback",
+    "InterviewFeedbackRevision",
+    "InterviewInterviewer",
+    "InterviewMode",
+    "InterviewStatus",
+    "InterviewType",
     "AdjustmentReason",
     "AssessmentStatus",
     "ReviewJudgement",

@@ -142,6 +142,16 @@ function Body({ candidate, onClose, onDone }: { candidate: AnonymizeTarget } & O
             </dd>
           </div>
         )}
+        {p.interviews_scrubbed > 0 && (
+          <div>
+            <dt className="font-medium text-navy-900">Interviews</dt>
+            <dd className="text-slate-600">
+              {p.interviews_scrubbed === 1
+                ? '1 interview loses its title, links, location and cancellation reason, and its feedback text and private notes are removed. Times and ratings are kept.'
+                : `${p.interviews_scrubbed} interviews lose their titles, links, locations and cancellation reasons, and their feedback text and private notes are removed. Times and ratings are kept.`}
+            </dd>
+          </div>
+        )}
         {p.resumes_removed > 0 && (
           <div>
             <dt className="font-medium text-navy-900">Resumes</dt>

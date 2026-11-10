@@ -25,6 +25,7 @@ from app.models.candidate import Candidate, ConsentBasis
 from app.models.user import User, UserRole
 from app.schemas.privacy import RetentionStatus
 from app.services import audit, resume_storage, screening_service
+from app.services import interview as interview_service
 from app.services import resume as resume_service
 from app.services.candidate import EXPIRING_WINDOW_DAYS, get_candidate
 
@@ -87,6 +88,7 @@ def anonymization_preview(db: Session, candidate_id: uuid.UUID) -> dict:
         "history_notes_cleared": history_notes,
         "resumes_removed": resume_service.count_for_candidate(db, candidate.id),
         "assessments_scrubbed": screening_service.count_for_candidate(db, candidate.id),
+        "interviews_scrubbed": interview_service.count_for_candidate(db, candidate.id),
     }
 
 
@@ -134,6 +136,7 @@ def anonymize_candidate(
     # Requirements Coverage evidence, adjustments and reviewer notes are resume-derived: remove
     # them (numbers and versions stay). Records its own safe audit event in this transaction.
     screening_service.scrub_for_candidate(db, actor, candidate.id, request_id)
+    interview_service.scrub_for_candidate(db, actor, candidate.id, request_id)
     own_apps = select(Application.id).where(Application.candidate_id == candidate.id)
     # Bulk statements (not ORM objects): the one deliberate exception to "history is append-only",
     # limited to the free-text note columns. Stages, event types, actors and timestamps stay.

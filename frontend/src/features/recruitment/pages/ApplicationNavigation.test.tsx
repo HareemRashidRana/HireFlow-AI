@@ -13,6 +13,12 @@ import { ApplicationsPage } from './ApplicationsPage'
 import { PipelineBoardPage } from './PipelineBoardPage'
 
 const api = { list: vi.fn(), board: vi.fn(), summary: vi.fn(), recruiters: vi.fn(), get: vi.fn() }
+vi.mock('../../../api/interviews', () => ({
+  interviewsApi: {
+    forApplication: async () => ({ items: [], total: 0, page: 1, page_size: 50 }),
+    interviewers: async () => [],
+  },
+}))
 vi.mock('../../../api/screening', () => ({
   screeningApi: {
     forApplication: async () => ({

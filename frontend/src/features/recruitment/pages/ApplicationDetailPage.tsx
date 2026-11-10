@@ -15,6 +15,7 @@ import { useQuery } from '../../../hooks/useQuery'
 import { formatDateTime } from '../../../lib/format'
 import type { Application, StaffSummary } from '../../../types/application'
 import { ApplicationTimeline } from '../components/ApplicationTimeline'
+import { ApplicationInterviewsCard } from '../components/ApplicationInterviewsCard'
 import { ReopenDialog } from '../components/ReopenDialog'
 import { RequirementsCoverageCard } from '../components/RequirementsCoverageCard'
 import { StageBadge } from '../components/StageBadge'
@@ -122,6 +123,11 @@ export function ApplicationDetailPage() {
             <CardHeader title="History" />
             <ApplicationTimeline events={app.events} />
           </Card>
+          <ApplicationInterviewsCard
+            applicationId={app.id}
+            label={`${app.candidate.first_name} ${app.candidate.last_name}, ${app.job.title}`}
+            closed={['hired', 'rejected', 'withdrawn'].includes(app.stage)}
+          />
           <RequirementsCoverageCard applicationId={app.id} candidateId={app.candidate.id} />
           <NotesCard app={app} canWrite={canWrite} onSaved={reload} />
         </div>

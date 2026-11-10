@@ -20,6 +20,7 @@ export type Permission =
   | 'resumes:manage'
   | 'resumes:delete'
   | 'screening:use'
+  | 'interviews:use'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -49,6 +50,9 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   // Requirements Coverage: create, view and review. Employees get nothing; nobody can edit or delete
   // an assessment (the API has no such operation).
   'screening:use': ['admin', 'hr_manager', 'recruiter'],
+  // Interviews: schedule, view, change and give feedback. Employees get nothing. Feedback is further
+  // limited by the server (only an assigned interviewer writes it; HR and admins read submitted feedback).
+  'interviews:use': ['admin', 'hr_manager', 'recruiter'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {

@@ -263,7 +263,8 @@ class TestExport:
         ]
         for private in ("Docker", "evidence", "interview", "0300", "adjust", "job_snapshot", "matched_text",
                         "criteria", "Test Person", "test.person@example.com", "python3"):
-            assert private not in raw, private
+            # the export legitimately has an "interviews" list (metadata only); the word must not appear elsewhere
+            assert private not in raw.replace('"interviews"', ""), private
 
     def test_export_after_anonymization_marks_it_scrubbed(self, client, full):
         s, _ = full

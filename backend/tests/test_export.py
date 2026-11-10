@@ -72,7 +72,7 @@ class TestSingleExport:
         assert a["job_title"] == app["job"]["title"] and a["stage"] == "screening"
         assert set(a) == {
             "job_title", "stage", "source", "applied_at", "stage_changed_at",
-            "requirements_coverage_assessments",
+            "requirements_coverage_assessments", "interviews",
         }
         assert a["requirements_coverage_assessments"] == []  # none made: the key is there, empty
 

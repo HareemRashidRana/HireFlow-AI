@@ -35,7 +35,7 @@ const preview = (over: Partial<AnonymizationPreview> = {}): AnonymizationPreview
   fields_cleared: ['phone', 'location', 'current_title', 'current_company', 'consent_basis_note'],
   fields_replaced: ['first_name', 'last_name', 'email'],
   fields_kept: ['source', 'consent_basis', 'consent_date', 'retain_until'],
-  application_count: 2, application_notes_cleared: 1, history_notes_cleared: 3, resumes_removed: 0, assessments_scrubbed: 0, ...over,
+  application_count: 2, application_notes_cleared: 1, history_notes_cleared: 3, resumes_removed: 0, assessments_scrubbed: 0, interviews_scrubbed: 0, ...over,
 })
 
 describe('AnonymizeDialog', () => {

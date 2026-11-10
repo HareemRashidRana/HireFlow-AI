@@ -22,6 +22,8 @@ import { CandidatesPage } from './features/recruitment/pages/CandidatesPage'
 import { JobCreatePage } from './features/recruitment/pages/JobCreatePage'
 import { JobDetailPage } from './features/recruitment/pages/JobDetailPage'
 import { JobEditPage } from './features/recruitment/pages/JobEditPage'
+import { InterviewDetailPage } from './features/recruitment/pages/InterviewDetailPage'
+import { InterviewsPage } from './features/recruitment/pages/InterviewsPage'
 import { JobsPage } from './features/recruitment/pages/JobsPage'
 
 function App() {
@@ -62,6 +64,15 @@ function App() {
 
               {/* Recruitment: jobs. Same rules as the API (recruitment:*). */}
               <Route path="recruitment" element={<Navigate to="/recruitment/jobs" replace />} />
+              {/* Interviews: schedule, track and give feedback (interviews:use). */}
+              <Route
+                path="recruitment/interviews"
+                element={<RequirePermission permission="interviews:use"><InterviewsPage /></RequirePermission>}
+              />
+              <Route
+                path="recruitment/interviews/:id"
+                element={<RequirePermission permission="interviews:use"><InterviewDetailPage /></RequirePermission>}
+              />
               <Route
                 path="recruitment/jobs"
                 element={<RequirePermission permission="recruitment:read"><JobsPage /></RequirePermission>}

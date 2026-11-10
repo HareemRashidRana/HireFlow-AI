@@ -30,6 +30,9 @@ FORBIDDEN_KEYS = frozenset(
         "evidence", "skills", "skill", "criteria", "requirement", "requirements", "adjustment",
         "adjustments", "justification", "reviewer_note", "snapshot", "job_snapshot", "experience",
         "degree", "institution", "employer", "matched_text", "explanation", "warnings",
+        # interviews: never links, free text, feedback or private notes
+        "meeting_url", "url", "feedback", "private_notes", "strengths", "concerns", "comments",
+        "cancellation_reason", "reason_text", "edit_reason", "body", "link",
     }
 )
 _MAX_TEXT = 100

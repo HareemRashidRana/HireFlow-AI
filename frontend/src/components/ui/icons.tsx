@@ -20,6 +20,13 @@ function Svg({ children, ...props }: IconProps & { children: ReactNode }) {
   )
 }
 
+export const CalendarIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+    <path d="M3.5 10h17M8 3v4M16 3v4" />
+  </Svg>
+)
+
 export const UsersIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20" />

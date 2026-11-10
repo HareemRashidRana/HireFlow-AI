@@ -9,6 +9,7 @@ import type { ApiHealth } from '../../hooks/useApiHealth'
 import { Avatar } from '../ui/Avatar'
 import {
   BriefcaseIcon,
+  CalendarIcon,
   ClipboardIcon,
   ContactIcon,
   KanbanIcon,
@@ -38,6 +39,7 @@ const nav: NavItem[] = [
   { to: '/recruitment/candidates', label: 'Candidates', icon: ContactIcon, permission: 'recruitment:read' },
   { to: '/recruitment/applications', label: 'Applications', icon: ClipboardIcon, permission: 'recruitment:read' },
   { to: '/recruitment/pipeline', label: 'Pipeline', icon: KanbanIcon, permission: 'recruitment:read' },
+  { to: '/recruitment/interviews', label: 'Interviews', icon: CalendarIcon, permission: 'interviews:use' },
   { to: '/recruitment/privacy', label: 'Privacy', icon: ShieldIcon, permission: 'privacy:manage' },
   { to: '/profile', label: 'My profile', icon: UserIcon, needsEmployeeRecord: true },
 ]

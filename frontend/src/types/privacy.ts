@@ -54,6 +54,8 @@ export interface AnonymizationPreview {
   resumes_removed: number
   /** Requirements Coverage records that lose resume-derived content. */
   assessments_scrubbed: number
+  /** Interviews whose notes, links and feedback text are removed. */
+  interviews_scrubbed: number
 }
 
 export type AuditEventType =
@@ -78,6 +80,17 @@ export type AuditEventType =
   | 'screening_viewed'
   | 'screening_reviewed'
   | 'screening_scrubbed'
+  | 'interview_created'
+  | 'interview_updated'
+  | 'interview_confirmed'
+  | 'interview_completed'
+  | 'interview_cancelled'
+  | 'interview_rescheduled'
+  | 'interviewers_changed'
+  | 'feedback_draft_saved'
+  | 'feedback_submitted'
+  | 'feedback_edited'
+  | 'interview_scrubbed'
 
 export interface AuditEvent {
   id: string

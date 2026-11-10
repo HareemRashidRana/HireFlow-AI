@@ -29,18 +29,24 @@ def load_migration():
 
 def test_the_graph_has_one_head_and_the_right_parent():
     s = script()
-    assert s.get_heads() == [NEW]
+    assert len(s.get_heads()) == 1  # no branches
     assert s.get_revision(NEW).down_revision == PREVIOUS
+    chain = {r.revision for r in s.walk_revisions()}
+    assert NEW in chain and PREVIOUS in chain  # still on the one line of history
 
 
-def test_the_audit_check_list_equals_the_enum_exactly():
+def test_the_audit_check_list_is_a_prefix_of_the_enum():
+    """Later migrations widen it further (interviews); this one's list must still be exactly its own."""
     m = load_migration()
-    assert list(m.PREVIOUS_EVENTS + m.SCREENING_EVENTS) == [e.value for e in AuditEventType]
+    values = [e.value for e in AuditEventType]
+    assert list(m.PREVIOUS_EVENTS + m.SCREENING_EVENTS) == values[: len(m.PREVIOUS_EVENTS + m.SCREENING_EVENTS)]
 
 
-def test_the_downgrade_target_equals_the_enum_without_screening_events():
+def test_the_downgrade_target_is_the_enum_before_screening():
     m = load_migration()
-    assert list(m.PREVIOUS_EVENTS) == [e.value for e in AuditEventType if not e.value.startswith("screening_")]
+    values = [e.value for e in AuditEventType]
+    assert list(m.PREVIOUS_EVENTS) == values[: len(m.PREVIOUS_EVENTS)]
+    assert not any(v.startswith("screening_") for v in m.PREVIOUS_EVENTS)
 
 
 def test_every_enum_value_fits_its_column():

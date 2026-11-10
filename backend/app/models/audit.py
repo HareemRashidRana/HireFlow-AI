@@ -32,6 +32,17 @@ class AuditEventType(enum.StrEnum):
     SCREENING_VIEWED = "screening_viewed"
     SCREENING_REVIEWED = "screening_reviewed"
     SCREENING_SCRUBBED = "screening_scrubbed"  # resume-derived content removed (counts only)
+    INTERVIEW_CREATED = "interview_created"
+    INTERVIEW_UPDATED = "interview_updated"
+    INTERVIEW_CONFIRMED = "interview_confirmed"
+    INTERVIEW_COMPLETED = "interview_completed"
+    INTERVIEW_CANCELLED = "interview_cancelled"
+    INTERVIEW_RESCHEDULED = "interview_rescheduled"
+    INTERVIEWERS_CHANGED = "interviewers_changed"
+    FEEDBACK_DRAFT_SAVED = "feedback_draft_saved"
+    FEEDBACK_SUBMITTED = "feedback_submitted"
+    FEEDBACK_EDITED = "feedback_edited"
+    INTERVIEW_SCRUBBED = "interview_scrubbed"  # notes and feedback text removed (counts only)
 
 
 class CandidateAuditEvent(Base):
