@@ -109,6 +109,7 @@ describe('recruitment permissions mirror the API', () => {
     'privacy:purge': { admin: true, hr_manager: false, recruiter: false, employee: false },
     'resumes:manage': { admin: true, hr_manager: true, recruiter: true, employee: false },
     'resumes:delete': { admin: true, hr_manager: true, recruiter: false, employee: false },
+    'screening:use': { admin: true, hr_manager: true, recruiter: true, employee: false },
     'employees:read': { admin: true, hr_manager: true, recruiter: true, employee: false },
     'employees:write': { admin: true, hr_manager: true, recruiter: false, employee: false },
     'employees:delete': { admin: true, hr_manager: false, recruiter: false, employee: false },

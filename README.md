@@ -12,8 +12,9 @@
 - **Recruitment (built):** job postings, candidates, applications and a hiring pipeline board with one-step stage rules, rejection reasons, per-column paging and filters
 - **Candidate privacy (built):** audit trail, anonymization, export (CSV/JSON), retention review and an opt-in, admin-only purge. See [docs/RECRUITMENT_PRIVACY.md](docs/RECRUITMENT_PRIVACY.md) for behaviour, permissions and limits (this is tooling, not a compliance guarantee)
 - **Resumes (built):** secure PDF/DOCX upload, private storage, version history with one active resume, deterministic text extraction and parsing with confidence, and a human review step (parsed data never changes a candidate on its own). No OCR and no scoring. See [docs/RESUMES.md](docs/RESUMES.md) for behaviour, limits and operations
+- **Requirements Coverage (built, advisory):** a transparent, deterministic comparison of a job's required and preferred skills with a human-reviewed resume (80/20 weights, curated alias table), with versioned immutable assessments, stale detection, human judgement kept separate, full audit and privacy scrubbing. It never ranks, filters or changes an application's stage. See [docs/REQUIREMENTS_COVERAGE.md](docs/REQUIREMENTS_COVERAGE.md) for the method, limits and privacy behaviour
 - **Interview scheduling (planned)**
-- **AI screening:** candidate-to-job match scoring (resume parsing is built, see above)
+- **AI screening:** further screening features (resume parsing and Requirements Coverage are built, see above)
 - **Leave and attendance:** requests, approvals, balances
 - **Dashboard:** headcount, hiring funnel and leave analytics
 

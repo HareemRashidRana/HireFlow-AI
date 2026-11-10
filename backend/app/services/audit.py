@@ -26,6 +26,10 @@ FORBIDDEN_KEYS = frozenset(
         # resumes: never a file name, file content or parsed data
         "text", "content", "filename", "original_filename", "file_name", "parsed", "parsed_data",
         "reviewed_data", "data",
+        # screening: never evidence, requirements, adjustments, notes or anything resume-derived
+        "evidence", "skills", "skill", "criteria", "requirement", "requirements", "adjustment",
+        "adjustments", "justification", "reviewer_note", "snapshot", "job_snapshot", "experience",
+        "degree", "institution", "employer", "matched_text", "explanation", "warnings",
     }
 )
 _MAX_TEXT = 100

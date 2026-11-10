@@ -70,7 +70,11 @@ class TestSingleExport:
         assert cand["email"] == app["candidate"]["email"] and body["exported_at"]
         [a] = cand["applications"]
         assert a["job_title"] == app["job"]["title"] and a["stage"] == "screening"
-        assert set(a) == {"job_title", "stage", "source", "applied_at", "stage_changed_at"}
+        assert set(a) == {
+            "job_title", "stage", "source", "applied_at", "stage_changed_at",
+            "requirements_coverage_assessments",
+        }
+        assert a["requirements_coverage_assessments"] == []  # none made: the key is there, empty
 
     def test_staff_notes_and_internal_data_are_never_exported(self, client):
         app = make_application(client, internal_notes="CONFIDENTIAL-STAFF-OPINION")

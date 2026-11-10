@@ -12,9 +12,23 @@ from app.models.job import JobPosting, JobStatus
 from app.models.login_attempt import LoginAttempt
 from app.models.refresh_token import RefreshToken
 from app.models.resume import Resume, ResumeStatus
+from app.models.screening import (
+    AdjustmentReason,
+    AssessmentStatus,
+    ReviewJudgement,
+    ScreeningAssessment,
+    ScreeningReview,
+    ScrubReason,
+)
 from app.models.user import User, UserRole
 
 __all__ = [
+    "AdjustmentReason",
+    "AssessmentStatus",
+    "ReviewJudgement",
+    "ScreeningAssessment",
+    "ScreeningReview",
+    "ScrubReason",
     "Application",
     "ApplicationEvent",
     "ApplicationEventType",

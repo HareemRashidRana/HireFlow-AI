@@ -28,6 +28,10 @@ class AuditEventType(enum.StrEnum):
     RESUME_ACTIVATED = "resume_activated"
     RESUME_UPDATED = "resume_updated"  # linked to / unlinked from an application
     RESUME_DELETED = "resume_deleted"
+    SCREENING_CREATED = "screening_created"
+    SCREENING_VIEWED = "screening_viewed"
+    SCREENING_REVIEWED = "screening_reviewed"
+    SCREENING_SCRUBBED = "screening_scrubbed"  # resume-derived content removed (counts only)
 
 
 class CandidateAuditEvent(Base):

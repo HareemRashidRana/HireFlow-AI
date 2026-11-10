@@ -132,6 +132,16 @@ function Body({ candidate, onClose, onDone }: { candidate: AnonymizeTarget } & O
               : `${p.application_count} application${p.application_count === 1 ? '' : 's'} and every stage change are kept. Staff notes are cleared: ${p.application_notes_cleared} on applications, ${p.history_notes_cleared} in the history.`}
           </dd>
         </div>
+        {p.assessments_scrubbed > 0 && (
+          <div>
+            <dt className="font-medium text-navy-900">Requirements Coverage</dt>
+            <dd className="text-slate-600">
+              {p.assessments_scrubbed === 1
+                ? '1 assessment loses its resume-derived details, reviewer notes and adjustments. Its numbers are kept.'
+                : `${p.assessments_scrubbed} assessments lose their resume-derived details, reviewer notes and adjustments. Their numbers are kept.`}
+            </dd>
+          </div>
+        )}
         {p.resumes_removed > 0 && (
           <div>
             <dt className="font-medium text-navy-900">Resumes</dt>

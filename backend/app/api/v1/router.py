@@ -9,6 +9,7 @@ from app.api.v1 import (
     jobs,
     privacy,
     resumes,
+    screening,
     users,
 )
 
@@ -22,3 +23,4 @@ api_router.include_router(candidates.router)
 api_router.include_router(applications.router)
 api_router.include_router(privacy.router)
 api_router.include_router(resumes.router)
+api_router.include_router(screening.router)

@@ -35,7 +35,7 @@ const preview = (over: Partial<AnonymizationPreview> = {}): AnonymizationPreview
   fields_cleared: ['phone', 'location', 'current_title', 'current_company', 'consent_basis_note'],
   fields_replaced: ['first_name', 'last_name', 'email'],
   fields_kept: ['source', 'consent_basis', 'consent_date', 'retain_until'],
-  application_count: 2, application_notes_cleared: 1, history_notes_cleared: 3, resumes_removed: 0, ...over,
+  application_count: 2, application_notes_cleared: 1, history_notes_cleared: 3, resumes_removed: 0, assessments_scrubbed: 0, ...over,
 })
 
 describe('AnonymizeDialog', () => {
@@ -67,6 +67,20 @@ describe('AnonymizeDialog', () => {
     const first = open()
     expect(await screen.findByText(/1 resume file is permanently deleted/)).toBeTruthy()
     first.onClose()
+  })
+
+  it('says Requirements Coverage assessments lose their resume-derived details but keep their numbers', async () => {
+    api.anonymizationPreview.mockResolvedValue(preview({ assessments_scrubbed: 2 }))
+    open()
+    expect(await screen.findByText(/2 assessments lose their resume-derived details, reviewer notes and adjustments. Their numbers are kept./)).toBeTruthy()
+    expect(screen.getByText('Requirements Coverage')).toBeTruthy()
+  })
+
+  it('does not mention Requirements Coverage when there are no assessments', async () => {
+    api.anonymizationPreview.mockResolvedValue(preview({ assessments_scrubbed: 0 }))
+    open()
+    await screen.findByText(/First name, Last name, Email address/)
+    expect(screen.queryByText('Requirements Coverage')).toBeNull()
   })
 
   it('does not mention resumes when the candidate has none', async () => {

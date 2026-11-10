@@ -20,6 +20,10 @@ export const auditEventLabels: Record<AuditEventType, string> = {
   resume_activated: 'Resume made active',
   resume_updated: 'Resume updated',
   resume_deleted: 'Resume deleted',
+  screening_created: 'Requirements Coverage assessed',
+  screening_viewed: 'Requirements Coverage opened',
+  screening_reviewed: 'Requirements Coverage reviewed',
+  screening_scrubbed: 'Requirements Coverage details removed',
 }
 
 export const auditEventTypes = Object.keys(auditEventLabels) as AuditEventType[]
@@ -63,6 +67,14 @@ export function describeAudit(e: AuditEvent): string {
       return 'Permanently deleted: retention period had expired'
     case 'resume_uploaded':
       return typeof m.version === 'number' ? `Resume uploaded (version ${m.version})` : 'Resume uploaded'
+    case 'screening_scrubbed':
+      return m.reason === 'anonymized'
+        ? 'Requirements Coverage details removed (anonymized)'
+        : 'Requirements Coverage details removed (resume deleted)'
+    case 'screening_created':
+      return typeof m.assessment_number === 'number'
+        ? `Requirements Coverage assessed (#${m.assessment_number})`
+        : 'Requirements Coverage assessed'
     case 'resume_parsed':
     case 'resume_parse_retried':
       return typeof m.status === 'string'

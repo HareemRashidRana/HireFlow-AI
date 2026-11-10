@@ -13,6 +13,7 @@ describe('audit labels', () => {
       'candidate_exported', 'candidate_anonymized', 'candidate_deleted', 'candidate_purged',
       'resume_uploaded', 'resume_downloaded', 'resume_viewed', 'resume_parsed', 'resume_parse_retried',
       'resume_reviewed', 'resume_activated', 'resume_updated', 'resume_deleted',
+      'screening_created', 'screening_viewed', 'screening_reviewed', 'screening_scrubbed',
     ])
     for (const t of auditEventTypes) expect(auditEventLabels[t]).toBeTruthy()
   })
@@ -21,6 +22,12 @@ describe('audit labels', () => {
 describe('describeAudit', () => {
   it.each([
     [ev('candidate_viewed'), 'Profile viewed'],
+    [ev('screening_created', { assessment_number: 2, assessment_id: 'a' }), 'Requirements Coverage assessed (#2)'],
+    [ev('screening_created'), 'Requirements Coverage assessed'],
+    [ev('screening_viewed'), 'Requirements Coverage opened'],
+    [ev('screening_reviewed', { judgement: 'agree', has_note: true }), 'Requirements Coverage reviewed'],
+    [ev('screening_scrubbed', { reason: 'anonymized', assessments: 1, reviews: 0 }), 'Requirements Coverage details removed (anonymized)'],
+    [ev('screening_scrubbed', { reason: 'resume_deleted', assessments: 1, reviews: 0 }), 'Requirements Coverage details removed (resume deleted)'],
     [ev('resume_uploaded', { version: 3, resume_id: 'r' }), 'Resume uploaded (version 3)'],
     [ev('resume_uploaded'), 'Resume uploaded'],
     [ev('resume_parsed', { status: 'no_text' }), 'Resume read: no text'],

@@ -25,6 +25,7 @@ class AnonymizationPreview(BaseModel):
     application_notes_cleared: int
     history_notes_cleared: int
     resumes_removed: int = 0  # resume FILES that would be permanently deleted
+    assessments_scrubbed: int = 0  # Requirements Coverage records that lose resume-derived content
 
 
 class AnonymizeRequest(BaseModel):

@@ -25,7 +25,7 @@ from app.models.candidate import Candidate
 from app.models.resume import Resume, ResumeStatus
 from app.models.user import User
 from app.schemas.resume import ParsedResume, ResumeReviewRequest, ReviewedResume
-from app.services import audit
+from app.services import audit, screening_service
 from app.services import resume_parser as parser
 from app.services import resume_storage as storage
 from app.services import resume_text as text_extraction
@@ -453,6 +453,8 @@ def delete_resume(
 ) -> None:
     resume = get_resume(db, resume_id)
     key, was_active, candidate_id = resume.storage_key, resume.is_active, resume.candidate_id
+    # Assessments built from this resume keep their numbers but lose the resume-derived content.
+    screening_service.scrub_for_resume(db, actor, resume.id, candidate_id, request_id)
     _record(
         db,
         actor,

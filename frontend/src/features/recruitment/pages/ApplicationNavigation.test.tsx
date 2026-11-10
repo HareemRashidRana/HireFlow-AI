@@ -13,6 +13,17 @@ import { ApplicationsPage } from './ApplicationsPage'
 import { PipelineBoardPage } from './PipelineBoardPage'
 
 const api = { list: vi.fn(), board: vi.fn(), summary: vi.fn(), recruiters: vi.fn(), get: vi.fn() }
+vi.mock('../../../api/screening', () => ({
+  screeningApi: {
+    forApplication: async () => ({
+      application_id: 'x',
+      readiness: { can_assess: false, blocker: 'no_active_resume', blocker_text: 'This candidate has no active resume. Upload a resume first.' },
+      job_requirements: { required: [], preferred: [] },
+      items: [],
+      total: 0,
+    }),
+  },
+}))
 vi.mock('../../../api/applications', () => ({ applicationsApi: new Proxy({}, { get: (_t, k) => (api as Record<string, unknown>)[k as string] }) }))
 vi.mock('../../../api/jobs', () => ({ jobsApi: { list: async () => ({ items: [], total: 0, page: 1, page_size: 100, status_counts: {} }) } }))
 

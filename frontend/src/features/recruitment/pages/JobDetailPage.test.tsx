@@ -12,6 +12,30 @@ import { JobDetailPage } from './JobDetailPage'
 const get = vi.fn()
 const changeStatus = vi.fn()
 const remove = vi.fn()
+vi.mock('../../../api/screening', () => ({
+  screeningApi: {
+    forApplication: async () => ({
+      application_id: 'x',
+      readiness: { can_assess: false, blocker: 'no_active_resume', blocker_text: 'This candidate has no active resume. Upload a resume first.' },
+      job_requirements: { required: [], preferred: [] },
+      items: [],
+      total: 0,
+    }),
+    forJob: async () => ({ job_id: 'x', items: [], total: 0, page: 1, page_size: 10 }),
+    get: async () => {
+      throw new Error('unused')
+    },
+    create: async () => {
+      throw new Error('unused')
+    },
+    review: async () => {
+      throw new Error('unused')
+    },
+    methodology: async () => {
+      throw new Error('unused')
+    },
+  },
+}))
 vi.mock('../../../api/jobs', () => ({
   jobsApi: {
     get: (...a: unknown[]) => get(...a),

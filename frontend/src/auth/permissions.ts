@@ -19,6 +19,7 @@ export type Permission =
   | 'privacy:purge'
   | 'resumes:manage'
   | 'resumes:delete'
+  | 'screening:use'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -45,6 +46,9 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   // Deleting a resume file is HR / admin only. Employees get nothing. The API enforces all of it.
   'resumes:manage': ['admin', 'hr_manager', 'recruiter'],
   'resumes:delete': ['admin', 'hr_manager'],
+  // Requirements Coverage: create, view and review. Employees get nothing; nobody can edit or delete
+  // an assessment (the API has no such operation).
+  'screening:use': ['admin', 'hr_manager', 'recruiter'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {

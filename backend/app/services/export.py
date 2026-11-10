@@ -25,7 +25,7 @@ from app.models.candidate import Candidate, CandidateSource
 from app.models.resume import Resume, ResumeStatus
 from app.models.user import User
 from app.schemas.candidate import RetentionFilter
-from app.services import audit
+from app.services import audit, screening_service
 from app.services.candidate import EXPIRING_WINDOW_DAYS, get_candidate
 
 CSV_COLUMNS = [
@@ -97,7 +97,9 @@ def _applications_for(db: Session, candidate_ids: list[uuid.UUID]) -> dict[uuid.
         .options(joinedload(Application.job))
         .order_by(Application.applied_at)
     )
-    for a in db.scalars(stmt).unique():
+    applications = list(db.scalars(stmt).unique())
+    coverage = screening_service.export_metadata(db, [a.id for a in applications])
+    for a in applications:
         out[a.candidate_id].append(
             {
                 "job_title": a.job.title,
@@ -105,6 +107,8 @@ def _applications_for(db: Session, candidate_ids: list[uuid.UUID]) -> dict[uuid.
                 "source": a.source.value,
                 "applied_at": a.applied_at,
                 "stage_changed_at": a.stage_changed_at,
+                # numbers, versions and dates only: never evidence, snapshots or reviewer notes
+                "requirements_coverage_assessments": coverage[a.id],
             }
         )
     return out

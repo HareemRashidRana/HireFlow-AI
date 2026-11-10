@@ -16,6 +16,7 @@ import { formatDateTime } from '../../../lib/format'
 import type { Application, StaffSummary } from '../../../types/application'
 import { ApplicationTimeline } from '../components/ApplicationTimeline'
 import { ReopenDialog } from '../components/ReopenDialog'
+import { RequirementsCoverageCard } from '../components/RequirementsCoverageCard'
 import { StageBadge } from '../components/StageBadge'
 import { StageChangeDialog } from '../components/StageChangeDialog'
 import { pipelineStages, stageLabels } from '../lib/applicationStages'
@@ -121,6 +122,7 @@ export function ApplicationDetailPage() {
             <CardHeader title="History" />
             <ApplicationTimeline events={app.events} />
           </Card>
+          <RequirementsCoverageCard applicationId={app.id} candidateId={app.candidate.id} />
           <NotesCard app={app} canWrite={canWrite} onSaved={reload} />
         </div>
 

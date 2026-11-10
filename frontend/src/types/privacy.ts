@@ -52,6 +52,8 @@ export interface AnonymizationPreview {
   history_notes_cleared: number
   /** Resume files that would be permanently deleted from storage. */
   resumes_removed: number
+  /** Requirements Coverage records that lose resume-derived content. */
+  assessments_scrubbed: number
 }
 
 export type AuditEventType =
@@ -72,6 +74,10 @@ export type AuditEventType =
   | 'resume_activated'
   | 'resume_updated'
   | 'resume_deleted'
+  | 'screening_created'
+  | 'screening_viewed'
+  | 'screening_reviewed'
+  | 'screening_scrubbed'
 
 export interface AuditEvent {
   id: string

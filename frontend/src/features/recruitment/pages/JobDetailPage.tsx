@@ -14,6 +14,7 @@ import { useQuery } from '../../../hooks/useQuery'
 import { employmentTypeLabels, formatShortDate, fullName } from '../../../lib/format'
 import type { Job } from '../../../types/job'
 import { DeleteJobDialog } from '../components/DeleteJobDialog'
+import { JobCoverageOverview } from '../components/JobCoverageOverview'
 import { JobStatusActions } from '../components/JobStatusActions'
 import { JobStatusBadge } from '../components/JobStatusBadge'
 import { formatSalary, isDeletable, isEditable } from '../lib/jobStatus'
@@ -167,6 +168,8 @@ export function JobDetailPage() {
               </Detail>
             </dl>
           </Card>
+
+          <JobCoverageOverview jobId={job.id} />
         </div>
 
         <div className="space-y-6">
