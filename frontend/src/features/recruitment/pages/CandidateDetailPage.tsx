@@ -14,6 +14,9 @@ import { Spinner } from '../../../components/ui/Spinner'
 import { useToast } from '../../../components/ui/Toast'
 import { useQuery } from '../../../hooks/useQuery'
 import { formatDate, formatShortDate } from '../../../lib/format'
+import { AnonymizeDialog } from '../../privacy/components/AnonymizeDialog'
+import { AuditList } from '../../privacy/components/AuditList'
+import { ExportDialog } from '../../privacy/components/ExportDialog'
 import { DeleteCandidateDialog } from '../components/DeleteCandidateDialog'
 import { RetentionBadge } from '../components/RetentionBadge'
 import { StageBadge } from '../components/StageBadge'
@@ -36,6 +39,8 @@ export function CandidateDetailPage() {
   const toast = useToast()
   const { can } = useAuth()
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [anonymizing, setAnonymizing] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const { data: candidate, error, loading, reload } = useQuery((s) => candidatesApi.get(id, s), id)
 
@@ -65,6 +70,7 @@ export function CandidateDetailPage() {
 
   const canWrite = can('recruitment:write')
   const canDelete = can('candidates:delete')
+  const canPrivacy = can('privacy:manage') // export, anonymize and the audit trail: HR and admins only
   const anonymized = candidate.anonymized_at !== null
   const role = [candidate.current_title, candidate.current_company].filter(Boolean).join(' at ')
 
@@ -104,6 +110,16 @@ export function CandidateDetailPage() {
               <Link to={`/recruitment/candidates/${candidate.id}/edit`} className={buttonClasses('secondary')}>
                 <PencilIcon className="size-4" /> Edit
               </Link>
+            )}
+            {canPrivacy && (
+              <Button variant="secondary" onClick={() => setExporting(true)}>
+                Export data
+              </Button>
+            )}
+            {canPrivacy && !anonymized && (
+              <Button variant="secondary" onClick={() => setAnonymizing(true)}>
+                Anonymize…
+              </Button>
             )}
             {canDelete && (
               <Button variant="secondary" className="text-rose-600 hover:!bg-rose-50" onClick={() => setConfirmDelete(true)}>
@@ -172,6 +188,13 @@ export function CandidateDetailPage() {
             </dl>
           </Card>
 
+          {canPrivacy && (
+            <Card>
+              <CardHeader title="Access history" />
+              <AuditList candidateId={candidate.id} pageSize={5} />
+            </Card>
+          )}
+
           <Card>
             <CardHeader title="Record" />
             <dl className="space-y-5 p-5 sm:p-6">
@@ -181,6 +204,20 @@ export function CandidateDetailPage() {
           </Card>
         </div>
       </div>
+
+      {canPrivacy && (
+        <>
+          <AnonymizeDialog
+            candidate={anonymizing ? candidate : null}
+            onClose={() => setAnonymizing(false)}
+            onDone={reload}
+          />
+          <ExportDialog
+            target={exporting ? { kind: 'one', id: candidate.id, label: `${candidate.first_name} ${candidate.last_name}` } : null}
+            onClose={() => setExporting(false)}
+          />
+        </>
+      )}
 
       {canDelete && (
         <DeleteCandidateDialog

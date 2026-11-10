@@ -54,6 +54,11 @@ class Settings(BaseSettings):
     # How long candidate data is kept after the candidate's last meaningful activity before it
     # becomes due for review/erasure. Default 12 months; configurable per deployment.
     CANDIDATE_RETENTION_MONTHS: int = Field(default=12, ge=1, le=120)
+    # Permanent deletion of expired candidates is OFF unless a deployment turns it on on purpose.
+    # (Previewing what a purge would delete always works.) There is no automatic / scheduled purge.
+    PRIVACY_PURGE_ENABLED: bool = False
+    # One export never contains more candidates than this; larger requests are refused, not cut off.
+    EXPORT_MAX_ROWS: int = Field(default=500, ge=1, le=5000)
 
     @computed_field  # type: ignore[prop-decorator]
     @property

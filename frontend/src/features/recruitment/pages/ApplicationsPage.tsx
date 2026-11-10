@@ -26,6 +26,7 @@ import type { FilterKey } from '../components/ApplicationFilters'
 import { ApplicationTable } from '../components/ApplicationTable'
 import { allStages, isValidStage, stageLabels } from '../lib/applicationStages'
 import { candidateSources } from '../lib/candidateOptions'
+import { countActiveFilters, sharedFilterQuery } from '../lib/navContext'
 
 const PAGE_SIZE = 10
 const DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -136,7 +137,10 @@ export function ApplicationsPage() {
         description="Candidates applying to your open jobs, and where each one stands."
         actions={
           <>
-            <Link to="/recruitment/pipeline" className={buttonClasses('secondary')}>
+            <Link
+              to={`/recruitment/pipeline${sharedFilterQuery(params)}`}
+              className={buttonClasses('secondary')}
+            >
               <KanbanIcon className="size-4" /> Pipeline board
             </Link>
             {canWrite && addLink}
@@ -192,6 +196,7 @@ export function ApplicationsPage() {
           onFilterChange={(k: FilterKey, v) => update({ [k]: v, page: '' })}
           onClear={clearFilters}
           hasActiveFilters={hasFilters || search !== ''}
+          activeCount={countActiveFilters({ stage, job, recruiter, source, from, to }, search !== '')}
         />
 
         {firstLoad && (

@@ -84,11 +84,68 @@ def pipeline_board(
     job_id: uuid.UUID | None = None,
     recruiter_id: uuid.UUID | None = None,
     source: CandidateSource | None = None,
+    applied_from: date | None = None,
+    applied_to: date | None = None,
+    page_size: Annotated[int, Query(ge=1, le=50)] = service.BOARD_COLUMN_LIMIT,
 ):
-    columns = service.board(db, actor, q=q, job_id=job_id, recruiter_id=recruiter_id, source=source)
+    """The first page of every column, with each column's true total. More cards per column
+    come from /board/{stage}."""
+    columns = service.board(
+        db,
+        actor,
+        q=q,
+        job_id=job_id,
+        recruiter_id=recruiter_id,
+        source=source,
+        applied_from=applied_from,
+        applied_to=applied_to,
+        page_size=page_size,
+    )
     return Board(
-        columns={s: BoardColumn(total=t, items=items) for s, (t, items) in columns.items()},
-        per_column_limit=service.BOARD_COLUMN_LIMIT,
+        columns={
+            s: BoardColumn(
+                total=t, items=items, page=1, page_size=page_size, has_more=t > len(items)
+            )
+            for s, (t, items) in columns.items()
+        },
+        per_column_limit=page_size,
+    )
+
+
+@router.get("/board/{stage}", response_model=BoardColumn)
+def board_column(
+    stage: ApplicationStage,
+    db: DbSession,
+    actor: ReadUser,
+    q: Annotated[str | None, Query(max_length=100)] = None,
+    job_id: uuid.UUID | None = None,
+    recruiter_id: uuid.UUID | None = None,
+    source: CandidateSource | None = None,
+    applied_from: date | None = None,
+    applied_to: date | None = None,
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=50)] = service.BOARD_COLUMN_LIMIT,
+):
+    """One more page of one column ("load more"), ordered like the board."""
+    total, items = service.board_column(
+        db,
+        actor,
+        stage,
+        q=q,
+        job_id=job_id,
+        recruiter_id=recruiter_id,
+        source=source,
+        applied_from=applied_from,
+        applied_to=applied_to,
+        page=page,
+        page_size=page_size,
+    )
+    return BoardColumn(
+        total=total,
+        items=items,
+        page=page,
+        page_size=page_size,
+        has_more=total > (page - 1) * page_size + len(items),
     )
 
 

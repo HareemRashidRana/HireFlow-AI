@@ -33,12 +33,12 @@ const apps = [
   makeApplicationItem({ id: 'a1', stage: 'applied' }),
   makeApplicationItem({
     id: 'a2', stage: 'interview', source: 'referral', assigned_recruiter: rana,
-    candidate: { id: 'c2', first_name: 'Bilal', last_name: 'Ahmed', email: 'bilal@corp.io' },
+    candidate: { id: 'c2', first_name: 'Bilal', last_name: 'Ahmed', email: 'bilal@corp.io', current_title: null },
     job: { id: 'job-2', title: 'Product Designer', department: 'Design', status: 'open' },
   }),
   makeApplicationItem({
     id: 'a3', stage: 'rejected',
-    candidate: { id: 'c3', first_name: 'Omar', last_name: 'Farooq', email: 'omar@example.com' },
+    candidate: { id: 'c3', first_name: 'Omar', last_name: 'Farooq', email: 'omar@example.com', current_title: null },
   }),
 ]
 
@@ -218,7 +218,8 @@ describe('filters', () => {
     const user = userEvent.setup()
     render('/recruitment/applications?job=job-2&stage=offer')
     await screen.findAllByRole('row')
-    await user.click(screen.getByRole('button', { name: 'Clear' }))
+    // The button says how many filters it will clear.
+    await user.click(screen.getByRole('button', { name: 'Clear (2)' }))
     await waitFor(() => expect(lastParams()).toMatchObject({ job_id: '', stage: '' }))
     expect(urlNow()).toBe('/recruitment/applications')
   })

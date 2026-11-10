@@ -20,8 +20,17 @@ export interface RequestOptions extends Omit<RequestInit, 'body'> {
   auth?: boolean
 }
 
+export interface DownloadedFile {
+  blob: Blob
+  /** From the server's Content-Disposition (it never contains a person's name). */
+  filename: string
+  contentType: string
+}
+
 export interface HttpClient {
   request<T>(path: string, options?: RequestOptions): Promise<T>
+  /** Like request(), but for a file the server sends back (CSV / JSON exports). */
+  download(path: string, options?: RequestOptions): Promise<DownloadedFile>
 }
 
 export function createHttpClient(
@@ -47,7 +56,8 @@ export function createHttpClient(
     }
   }
 
-  async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  /** One request with the shared token handling: a single refresh + retry on 401, never a loop. */
+  async function authedFetch(path: string, options: RequestOptions): Promise<Response> {
     const authenticated = options.auth ?? true
 
     const token = authenticated ? await session.getFreshToken() : null
@@ -63,6 +73,19 @@ export function createHttpClient(
         throw new ApiError(SESSION_ENDED_MESSAGE, 401)
       }
     }
+    return res
+  }
+
+  async function failure(res: Response, body: unknown): Promise<never> {
+    const error = parseError(res.status, body, res.headers.get('Retry-After'))
+    if (res.status === 403 && error.message.startsWith(PASSWORD_CHANGE_REQUIRED_PREFIX)) {
+      session.markPasswordChangeRequired() // the router then sends the user to the change screen
+    }
+    throw error
+  }
+
+  async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+    const res = await authedFetch(path, options)
 
     if (res.status === 204) return undefined as T
 
@@ -73,15 +96,32 @@ export function createHttpClient(
       /* non-JSON body */
     }
 
-    if (!res.ok) {
-      const error = parseError(res.status, body, res.headers.get('Retry-After'))
-      if (res.status === 403 && error.message.startsWith(PASSWORD_CHANGE_REQUIRED_PREFIX)) {
-        session.markPasswordChangeRequired() // the router then sends the user to the change screen
-      }
-      throw error
-    }
+    if (!res.ok) await failure(res, body)
     return body as T
   }
 
-  return { request }
+  async function download(path: string, options: RequestOptions = {}): Promise<DownloadedFile> {
+    const res = await authedFetch(path, {
+      ...options,
+      headers: { ...(options.headers as Record<string, string> | undefined), Accept: '*/*' },
+    })
+    if (!res.ok) {
+      let body: unknown = null
+      try {
+        body = await res.json()
+      } catch {
+        /* non-JSON error body */
+      }
+      await failure(res, body)
+    }
+    const disposition = res.headers.get('Content-Disposition') ?? ''
+    const match = /filename="([^"\\/]+)"/.exec(disposition)
+    return {
+      blob: await res.blob(),
+      filename: match?.[1] ?? 'export',
+      contentType: res.headers.get('Content-Type') ?? 'application/octet-stream',
+    }
+  }
+
+  return { request, download }
 }

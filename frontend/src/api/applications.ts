@@ -7,6 +7,8 @@ import type {
   ApplicationSummary,
   ApplicationUpdate,
   Board,
+  BoardColumn,
+  BoardColumnParams,
   BoardParams,
   StaffSummary,
 } from '../types/application'
@@ -21,6 +23,10 @@ export const applicationsApi = {
 
   board: (params: BoardParams, signal?: AbortSignal) =>
     request<Board>(`/applications/board${toQuery(params)}`, { signal }),
+
+  /** One more page of one column ("load more"). */
+  boardColumn: (stage: ApplicationStage, params: BoardColumnParams, signal?: AbortSignal) =>
+    request<BoardColumn>(`/applications/board/${encodeURIComponent(stage)}${toQuery(params)}`, { signal }),
 
   summary: (signal?: AbortSignal) => request<ApplicationSummary>('/applications/summary', { signal }),
 

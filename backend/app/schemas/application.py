@@ -69,12 +69,12 @@ class CandidateSummary(BaseModel):
     first_name: str
     last_name: str
     email: str
+    current_title: str | None = None
 
 
 class CandidateDetailSummary(CandidateSummary):
     phone: str | None
     location: str | None
-    current_title: str | None
     current_company: str | None
     retain_until: date
 
@@ -152,8 +152,11 @@ class ApplicationList(BaseModel):
 
 
 class BoardColumn(BaseModel):
-    total: int
+    total: int  # the TRUE number in this column, however many cards were loaded
     items: list[ApplicationListItem]
+    page: int = 1
+    page_size: int = 25
+    has_more: bool = False
 
 
 class Board(BaseModel):

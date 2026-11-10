@@ -168,6 +168,45 @@ def list_applications(
     return [annotate(a, actor) for a in items], total, counts
 
 
+def board_column(
+    db: Session,
+    actor: User,
+    stage: ApplicationStage,
+    *,
+    q: str | None = None,
+    job_id: uuid.UUID | None = None,
+    recruiter_id: uuid.UUID | None = None,
+    source: CandidateSource | None = None,
+    applied_from: date | None = None,
+    applied_to: date | None = None,
+    page: int = 1,
+    page_size: int = BOARD_COLUMN_LIMIT,
+) -> tuple[int, list[Application]]:
+    """One page of one board column: (true total for the column, this page's applications)."""
+    conditions = _filters(
+        q=q,
+        job_id=job_id,
+        candidate_id=None,
+        recruiter_id=recruiter_id,
+        source=source,
+        applied_from=applied_from,
+        applied_to=applied_to,
+    )
+    base = _joined(select(Application)).where(*conditions, Application.stage == stage)
+    total = db.scalar(select(func.count()).select_from(base.subquery())) or 0
+    items = (
+        db.scalars(
+            _with_parties(base)
+            .order_by(Application.stage_changed_at.desc(), Application.id)
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        .unique()
+        .all()
+    )
+    return total, [annotate(a, actor) for a in items]
+
+
 def board(
     db: Session,
     actor: User,
@@ -176,30 +215,41 @@ def board(
     job_id: uuid.UUID | None = None,
     recruiter_id: uuid.UUID | None = None,
     source: CandidateSource | None = None,
+    applied_from: date | None = None,
+    applied_to: date | None = None,
+    page_size: int = BOARD_COLUMN_LIMIT,
 ) -> dict[ApplicationStage, tuple[int, list[Application]]]:
+    """First page of every column: totals from ONE grouped query, cards one query per stage."""
     conditions = _filters(
         q=q,
         job_id=job_id,
         candidate_id=None,
         recruiter_id=recruiter_id,
         source=source,
-        applied_from=None,
-        applied_to=None,
+        applied_from=applied_from,
+        applied_to=applied_to,
     )
+    totals = {s: 0 for s in S}
+    count_stmt = _joined(select(Application.stage, func.count()).select_from(Application))
+    for stage_value, n in db.execute(count_stmt.where(*conditions).group_by(Application.stage)):
+        totals[stage_value] = n
+
     columns: dict[ApplicationStage, tuple[int, list[Application]]] = {}
     for stage in S:
+        if totals[stage] == 0:
+            columns[stage] = (0, [])  # nothing to fetch
+            continue
         base = _joined(select(Application)).where(*conditions, Application.stage == stage)
-        total = db.scalar(select(func.count()).select_from(base.subquery())) or 0
         items = (
             db.scalars(
                 _with_parties(base)
                 .order_by(Application.stage_changed_at.desc(), Application.id)
-                .limit(BOARD_COLUMN_LIMIT)
+                .limit(page_size)
             )
             .unique()
             .all()
         )
-        columns[stage] = (total, [annotate(a, actor) for a in items])
+        columns[stage] = (totals[stage], [annotate(a, actor) for a in items])
     return columns
 
 

@@ -1,10 +1,11 @@
 """Shared FastAPI dependencies: database session, current user, role checks, CSRF."""
 
+import re
 import uuid
 from collections.abc import Callable
 from typing import Annotated
 
-from fastapi import Depends, Request
+from fastapi import Depends, Header, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import InvalidTokenError
 from sqlalchemy.orm import Session
@@ -89,3 +90,16 @@ def require_roles(*roles: UserRole) -> Callable[..., User]:
         return user
 
     return checker
+
+
+_REQUEST_ID = re.compile(r"^[A-Za-z0-9._-]{8,64}$")
+
+
+def get_request_id(x_request_id: Annotated[str | None, Header()] = None) -> str:
+    """Correlation id for the audit trail: the caller's X-Request-ID if safe, else a new one."""
+    if x_request_id and _REQUEST_ID.fullmatch(x_request_id):
+        return x_request_id
+    return uuid.uuid4().hex
+
+
+RequestId = Annotated[str, Depends(get_request_id)]

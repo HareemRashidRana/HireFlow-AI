@@ -461,7 +461,9 @@ class TestSummaryAndBoard:
         assert set(board["columns"]) == {s.value for s in ApplicationStage}
         assert board["columns"]["applied"]["total"] == 2
         assert len(board["columns"]["applied"]["items"]) == 2
-        assert board["columns"]["offer"] == {"total": 0, "items": []}
+        assert board["columns"]["offer"] == {
+            "total": 0, "items": [], "page": 1, "page_size": 25, "has_more": False
+        }
         assert board["columns"]["rejected"]["items"][0]["id"] == seeded["apps"]["sara_design"]["id"]
 
     def test_board_filters(self, client, seeded):
@@ -472,14 +474,11 @@ class TestSummaryAndBoard:
         assert by_text["columns"]["rejected"]["total"] == 1 and by_text["columns"]["applied"]["total"] == 0
 
     def test_board_caps_each_column_but_reports_the_true_total(self, client, monkeypatch):
-        from app.services import application as service
-
-        monkeypatch.setattr(service, "BOARD_COLUMN_LIMIT", 2)
         job = open_job(client)
         for n in range(1, 5):
             assert apply(client, make_candidate(client, n), job).status_code == 201
-        column = client.get(f"{APPS}/board").json()["columns"]["applied"]
-        assert column["total"] == 4 and len(column["items"]) == 2
+        column = client.get(f"{APPS}/board", params={"page_size": 2}).json()["columns"]["applied"]
+        assert column["total"] == 4 and len(column["items"]) == 2 and column["has_more"] is True
 
 
 # ---- database-level protections --------------------------------------------------------------

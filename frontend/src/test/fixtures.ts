@@ -141,7 +141,13 @@ export function makeApplicationItem(overrides: Partial<ApplicationListItem> = {}
     stage_changed_at: '2026-11-03T09:00:00Z',
     allowed_stages: ['screening', 'rejected', 'withdrawn'],
     can_reopen: false,
-    candidate: { id: 'cand-1', first_name: 'Sana', last_name: 'Iqbal', email: 'sana.iqbal@example.com' },
+    candidate: {
+      id: 'cand-1',
+      first_name: 'Sana',
+      last_name: 'Iqbal',
+      email: 'sana.iqbal@example.com',
+      current_title: 'Backend Developer',
+    },
     job: { id: 'job-1', title: 'Senior Backend Engineer', department: 'Engineering', status: 'open' },
     ...overrides,
   }
@@ -204,7 +210,13 @@ export function makeBoard(items: ApplicationListItem[], perColumnLimit = 25): Bo
   const columns = {} as Board['columns']
   for (const stage of Object.keys(emptyStageCounts()) as ApplicationStage[]) {
     const inStage = items.filter((a) => a.stage === stage)
-    columns[stage] = { total: inStage.length, items: inStage }
+    columns[stage] = {
+      total: inStage.length,
+      items: inStage,
+      page: 1,
+      page_size: perColumnLimit,
+      has_more: false,
+    }
   }
   return { columns, per_column_limit: perColumnLimit }
 }

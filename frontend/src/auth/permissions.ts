@@ -15,6 +15,8 @@ export type Permission =
   | 'recruitment:delete'
   | 'candidates:delete'
   | 'applications:assign'
+  | 'privacy:manage'
+  | 'privacy:purge'
 
 const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
@@ -32,6 +34,11 @@ const GRANTS: Record<Permission, readonly UserRole[]> = {
   // HR / admin only, but the server tells the UI per application what is allowed, so no permission
   // is needed for them here.
   'applications:assign': ['admin', 'hr_manager'],
+  // Candidate privacy: retention review, audit trail, export, anonymize and PREVIEWING a purge.
+  // Recruiters get none of it. Actually deleting expired candidates is administrators only (and the
+  // server also needs PRIVACY_PURGE_ENABLED). The API enforces all of this; this just shapes the UI.
+  'privacy:manage': ['admin', 'hr_manager'],
+  'privacy:purge': ['admin'],
 }
 
 export function can(user: AuthUser | null, permission: Permission): boolean {

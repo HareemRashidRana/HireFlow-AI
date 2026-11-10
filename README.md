@@ -2,14 +2,16 @@
 
 > AI-assisted HR Management System: recruitment, employee records, leave and attendance, in one full-stack app.
 
-**Status:** Employee Management and Authentication/RBAC are built. Recruitment, leave, attendance, AI screening and dashboards are planned (see [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)).
+**Status:** Employee Management, Authentication/RBAC and Recruitment (jobs, candidates, applications, pipeline board, candidate privacy and retention) are built. Leave, attendance, AI screening and dashboards are planned (see [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)).
 
 ## Features
 
 - **Auth and roles (built):** login with Admin, HR Manager, Recruiter and Employee roles; account lockout and rate limiting; rotating refresh tokens
 - **Employees (built):** directory, profiles, create/edit/delete, manager hierarchy
 - **Departments (planned):** proper department records
-- **Recruitment:** job postings, candidate pipeline, interview scheduling
+- **Recruitment (built):** job postings, candidates, applications and a hiring pipeline board with one-step stage rules, rejection reasons, per-column paging and filters
+- **Candidate privacy (built):** audit trail, anonymization, export (CSV/JSON), retention review and an opt-in, admin-only purge. See [docs/RECRUITMENT_PRIVACY.md](docs/RECRUITMENT_PRIVACY.md) for behaviour, permissions and limits (this is tooling, not a compliance guarantee)
+- **Interview scheduling (planned)**
 - **AI screening:** resume parsing and candidate-to-job match scoring
 - **Leave and attendance:** requests, approvals, balances
 - **Dashboard:** headcount, hiring funnel and leave analytics
@@ -117,6 +119,10 @@ npm run lint && npm run build   # lint, typecheck and production build
 ```
 
 Sign in at http://localhost:5173/login with the admin account you created. Accounts are created by an administrator (there is no self-registration).
+
+### Candidate privacy settings
+
+`backend/.env.example` documents `CANDIDATE_RETENTION_MONTHS` (default 12), `PRIVACY_PURGE_ENABLED` (default `false`: permanent deletion is off unless you turn it on) and `EXPORT_MAX_ROWS`. Nothing is ever deleted automatically.
 
 ### Secrets
 

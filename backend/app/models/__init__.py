@@ -5,6 +5,7 @@ from app.models.application import (
     ApplicationEventType,
     ApplicationStage,
 )
+from app.models.audit import AuditEventType, CandidateAuditEvent
 from app.models.candidate import Candidate, CandidateSource, ConsentBasis
 from app.models.employee import Employee, EmploymentStatus, EmploymentType
 from app.models.job import JobPosting, JobStatus
@@ -17,7 +18,9 @@ __all__ = [
     "ApplicationEvent",
     "ApplicationEventType",
     "ApplicationStage",
+    "AuditEventType",
     "Candidate",
+    "CandidateAuditEvent",
     "CandidateSource",
     "ConsentBasis",
     "Employee",

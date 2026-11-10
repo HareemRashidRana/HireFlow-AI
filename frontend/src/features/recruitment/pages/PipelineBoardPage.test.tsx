@@ -31,7 +31,7 @@ vi.mock('../../../api/applications', () => ({
 vi.mock('../../../api/jobs', () => ({ jobsApi: { list: (...a: unknown[]) => jobsList(...a) } }))
 
 const named = (id: string, first: string, last: string, over = {}) =>
-  makeApplicationItem({ id, candidate: { id: `c-${id}`, first_name: first, last_name: last, email: `${first.toLowerCase()}@example.com` }, ...over })
+  makeApplicationItem({ id, candidate: { id: `c-${id}`, first_name: first, last_name: last, email: `${first.toLowerCase()}@example.com`, current_title: null }, ...over })
 
 const items = [
   named('a1', 'Sana', 'Iqbal'),
@@ -90,16 +90,21 @@ describe('the board', () => {
     expect(within(column('Screening')).getByText('No applications')).toBeTruthy()
   })
 
-  it('keeps rejected and withdrawn applications in a separate closed section', async () => {
+  it('shows all eight stages as columns, marking progress, success and ended stages differently', async () => {
     render()
     await screen.findByRole('region', { name: 'Applied column' })
-    expect(screen.getByText(/1 rejected · 0 withdrawn/)).toBeTruthy()
+    const names = [...document.querySelectorAll('section[aria-label$=" column"] h2')].map((h) => h.textContent)
+    expect(names).toHaveLength(8)
+    expect(within(column('Applied')).getByText('In progress')).toBeTruthy()
+    expect(within(column('Hired')).getByText('Successful')).toBeTruthy()
+    expect(within(column('Rejected')).getByText('Ended')).toBeTruthy()
+    expect(within(column('Withdrawn')).getByText('Ended')).toBeTruthy()
     expect(within(column('Rejected')).getByText('Omar Farooq')).toBeTruthy()
   })
 
   it('says when a column holds more than it shows', async () => {
     const b = makeBoard(items, 1)
-    b.columns.applied = { total: 7, items: [items[0]] }
+    b.columns.applied = { total: 7, items: [items[0]], page: 1, page_size: 1, has_more: true }
     board.mockResolvedValue(b)
     render()
     await screen.findByRole('region', { name: 'Applied column' })
@@ -178,10 +183,13 @@ describe('filters', () => {
     expect(url).not.toMatch(/sana|q=/)
   })
 
-  it('has no date filters (the board is a current view)', async () => {
+  it('filters by date through the server and keeps the dates in the URL', async () => {
+    const user = userEvent.setup()
     render()
     await screen.findByRole('region', { name: 'Applied column' })
-    expect(screen.queryByLabelText('Applied from')).toBeNull()
+    await user.type(screen.getByLabelText('Applied from'), '2026-11-01')
+    await waitFor(() => expect(board.mock.calls.at(-1)![0]).toMatchObject({ applied_from: '2026-11-01' }))
+    expect(screen.getByTestId('location').textContent).toContain('from=2026-11-01')
   })
 })
 

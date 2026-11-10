@@ -21,6 +21,8 @@ interface Props {
   onFilterChange: (key: FilterKey, value: string) => void
   onClear: () => void
   hasActiveFilters: boolean
+  /** How many filters (including the search box) are in effect, for the indicator. */
+  activeCount?: number
 }
 
 const selectClasses =
@@ -40,9 +42,14 @@ export function ApplicationFilters({
   onFilterChange,
   onClear,
   hasActiveFilters,
+  activeCount,
 }: Props) {
   return (
-    <div className="grid gap-3 border-b border-slate-100 p-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div
+      role="search"
+      aria-label="Filters"
+      className="grid gap-3 border-b border-slate-100 p-4 sm:grid-cols-2 xl:grid-cols-4"
+    >
       <div className="relative sm:col-span-2 xl:col-span-4">
         <SearchIcon className="pointer-events-none absolute top-3 left-3.5 size-5 text-slate-400" />
         <input
@@ -52,7 +59,7 @@ export function ApplicationFilters({
           placeholder="Search candidate name, email or job title"
           aria-label="Search applications"
           autoComplete="off"
-          className="h-11 w-full rounded-xl border border-slate-200 bg-white pr-16 pl-11 text-sm shadow-sm placeholder:text-slate-400 hover:border-slate-300 focus:border-lavender-500 focus:ring-4 focus:ring-lavender-100 focus:outline-none"
+          className="h-11 w-full rounded-xl border border-slate-200 bg-white pr-24 pl-11 text-sm shadow-sm placeholder:text-slate-400 hover:border-slate-300 focus:border-lavender-500 focus:ring-4 focus:ring-lavender-100 focus:outline-none"
         />
         {hasActiveFilters && (
           <button
@@ -60,7 +67,7 @@ export function ApplicationFilters({
             onClick={onClear}
             className="absolute top-1.5 right-1.5 h-8 rounded-lg px-2.5 text-xs font-medium text-lavender-600 hover:bg-lavender-100"
           >
-            Clear
+            Clear{activeCount ? ` (${activeCount})` : ''}
           </button>
         )}
       </div>

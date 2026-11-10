@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { applicationsApi } from '../../../api/applications'
 import { useAuth } from '../../../auth/useAuth'
 import { Avatar } from '../../../components/ui/Avatar'
@@ -20,6 +20,7 @@ import { StageBadge } from '../components/StageBadge'
 import { StageChangeDialog } from '../components/StageChangeDialog'
 import { pipelineStages, stageLabels } from '../lib/applicationStages'
 import { candidateSourceLabels } from '../lib/candidateOptions'
+import { backLabel, fromState, safeFrom } from '../lib/navContext'
 import { jobStatusLabels } from '../lib/jobStatus'
 
 function Detail({ label, children }: { label: string; children: ReactNode }) {
@@ -33,6 +34,8 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
 
 export function ApplicationDetailPage() {
   const { id = '' } = useParams()
+  const here = useLocation()
+  const hereState = fromState(here.pathname + here.search)
   const { can } = useAuth()
   const [changing, setChanging] = useState(false)
   const [reopening, setReopening] = useState(false)
@@ -126,7 +129,7 @@ export function ApplicationDetailPage() {
             <CardHeader title="Candidate" />
             <dl className="space-y-4 p-5 sm:p-6">
               <Detail label="Name">
-                <Link to={`/recruitment/candidates/${app.candidate.id}`} className="font-medium hover:text-lavender-600">
+                <Link to={`/recruitment/candidates/${app.candidate.id}`} state={hereState} className="font-medium hover:text-lavender-600">
                   {fullName}
                 </Link>
               </Detail>
@@ -190,12 +193,14 @@ export function ApplicationDetailPage() {
 }
 
 function BackLink() {
+  // Back goes to wherever the user came from (board, filtered list, candidate), filters intact.
+  const from = safeFrom(useLocation().state)
   return (
     <Link
-      to="/recruitment/applications"
+      to={from ?? '/recruitment/applications'}
       className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-navy-900"
     >
-      <ArrowLeftIcon className="size-4" /> All applications
+      <ArrowLeftIcon className="size-4" /> {backLabel(from, 'All applications')}
     </Link>
   )
 }

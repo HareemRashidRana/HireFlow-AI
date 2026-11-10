@@ -13,6 +13,7 @@ import { ProfilePage } from './features/employees/pages/ProfilePage'
 import { ApplicationCreatePage } from './features/recruitment/pages/ApplicationCreatePage'
 import { ApplicationDetailPage } from './features/recruitment/pages/ApplicationDetailPage'
 import { ApplicationsPage } from './features/recruitment/pages/ApplicationsPage'
+import { PrivacyPage } from './features/privacy/pages/PrivacyPage'
 import { PipelineBoardPage } from './features/recruitment/pages/PipelineBoardPage'
 import { CandidateCreatePage } from './features/recruitment/pages/CandidateCreatePage'
 import { CandidateDetailPage } from './features/recruitment/pages/CandidateDetailPage'
@@ -112,6 +113,12 @@ function App() {
               <Route
                 path="recruitment/pipeline"
                 element={<RequirePermission permission="recruitment:read"><PipelineBoardPage /></RequirePermission>}
+              />
+
+              {/* Candidate privacy: retention, audit trail, export, anonymization, purge preview. */}
+              <Route
+                path="recruitment/privacy"
+                element={<RequirePermission permission="privacy:manage"><PrivacyPage /></RequirePermission>}
               />
             </Route>
 

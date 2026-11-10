@@ -11,6 +11,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.models.application import Application
+from app.models.audit import AuditEventType
 from app.models.candidate import Candidate, CandidateSource
 from app.models.user import User
 from app.schemas.candidate import (
@@ -19,6 +20,7 @@ from app.schemas.candidate import (
     RetentionFilter,
     check_basis_note,
 )
+from app.services import audit
 
 # Candidate personal data is never written to logs: only ids.
 logger = logging.getLogger(__name__)
@@ -56,6 +58,22 @@ def get_candidate(db: Session, candidate_id: uuid.UUID) -> Candidate:
     if candidate is None:
         raise NotFoundError("Candidate not found")
     return candidate
+
+
+def view_candidate(
+    db: Session, actor: User, candidate_id: uuid.UUID, request_id: str | None = None
+) -> Candidate:
+    """Open one candidate's profile. Viewing personal data is itself recorded (fail-closed)."""
+    candidate = get_candidate(db, candidate_id)
+    audit.record(
+        db,
+        AuditEventType.CANDIDATE_VIEWED,
+        actor=actor,
+        candidate_id=candidate.id,
+        request_id=request_id,
+    )
+    db.commit()
+    return get_candidate(db, candidate_id)
 
 
 def list_candidates(
@@ -120,20 +138,39 @@ def _commit(db: Session) -> None:
         raise ConflictError("A candidate with this email already exists") from None
 
 
-def create_candidate(db: Session, actor: User, data: CandidateCreate) -> Candidate:
+def create_candidate(
+    db: Session, actor: User, data: CandidateCreate, request_id: str | None = None
+) -> Candidate:
     if _email_taken(db, data.email, exclude=None):
         raise ConflictError("A candidate with this email already exists")
 
     now = security.utcnow()
-    candidate = Candidate(**data.model_dump(), created_by_id=actor.id, created_at=now)
+    candidate = Candidate(
+        id=uuid.uuid4(), **data.model_dump(), created_by_id=actor.id, created_at=now
+    )
     touch_activity(candidate, now)  # adding the candidate is the first activity
     db.add(candidate)
+    audit.record(
+        db,
+        AuditEventType.CANDIDATE_CREATED,
+        actor=actor,
+        candidate_id=candidate.id,
+        metadata={"consent_basis": data.consent_basis.value},
+        request_id=request_id,
+        now=now,
+    )
     _commit(db)
     logger.info("Candidate created id=%s", candidate.id)
     return get_candidate(db, candidate.id)
 
 
-def update_candidate(db: Session, candidate_id: uuid.UUID, data: CandidateUpdate) -> Candidate:
+def update_candidate(
+    db: Session,
+    actor: User,
+    candidate_id: uuid.UUID,
+    data: CandidateUpdate,
+    request_id: str | None = None,
+) -> Candidate:
     candidate = get_candidate(db, candidate_id)
     if candidate.anonymized_at is not None:
         raise ConflictError("This candidate's data was anonymized and can no longer be edited")
@@ -157,23 +194,54 @@ def update_candidate(db: Session, candidate_id: uuid.UUID, data: CandidateUpdate
     if {"consent_basis", "consent_basis_note"} & changes.keys():
         changes["consent_basis_note"] = new_note
 
+    old_basis = candidate.consent_basis
     for field, value in changes.items():
         setattr(candidate, field, value)
 
     # Re-recording the basis or its date means the candidate is being actively dealt with again.
-    if {"consent_basis", "consent_date"} & changes.keys():
+    consent_changed = bool({"consent_basis", "consent_date"} & changes.keys())
+    if consent_changed:
         touch_activity(candidate)
+
+    if changes:
+        # Field NAMES only, never the values: the audit trail holds no personal data.
+        audit.record(
+            db,
+            AuditEventType.CANDIDATE_UPDATED,
+            actor=actor,
+            candidate_id=candidate.id,
+            metadata={"fields": sorted(changes)},
+            request_id=request_id,
+        )
+    if consent_changed:
+        audit.record(
+            db,
+            AuditEventType.CONSENT_CHANGED,
+            actor=actor,
+            candidate_id=candidate.id,
+            metadata={"from_basis": old_basis.value, "to_basis": candidate.consent_basis.value},
+            request_id=request_id,
+        )
 
     _commit(db)
     return get_candidate(db, candidate.id)
 
 
-def delete_candidate(db: Session, candidate_id: uuid.UUID) -> None:
+def delete_candidate(
+    db: Session, actor: User, candidate_id: uuid.UUID, request_id: str | None = None
+) -> None:
     """Hard delete, for entries made by mistake. (Erasure of a real person is anonymization.)"""
     candidate = get_candidate(db, candidate_id)
     if db.scalar(select(Application.id).where(Application.candidate_id == candidate.id).limit(1)):
         # Applications are hiring history; they are never deleted along with the person.
         raise ConflictError("This candidate has application history and cannot be deleted")
+    audit.record(
+        db,
+        AuditEventType.CANDIDATE_DELETED,
+        actor=actor,
+        candidate_id=candidate.id,
+        request_id=request_id,
+    )
     db.delete(candidate)
     db.commit()
     logger.info("Candidate deleted id=%s", candidate_id)

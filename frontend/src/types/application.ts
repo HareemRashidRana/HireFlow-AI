@@ -38,12 +38,12 @@ export interface CandidateSummary {
   first_name: string
   last_name: string
   email: string
+  current_title: string | null
 }
 
 export interface CandidateDetailSummary extends CandidateSummary {
   phone: string | null
   location: string | null
-  current_title: string | null
   current_company: string | null
   retain_until: string
 }
@@ -105,8 +105,12 @@ export interface ApplicationList {
 }
 
 export interface BoardColumn {
+  /** The TRUE number in this column, however many cards have been loaded. */
   total: number
   items: ApplicationListItem[]
+  page: number
+  page_size: number
+  has_more: boolean
 }
 
 export interface Board {
@@ -159,4 +163,11 @@ export interface BoardParams {
   job_id?: string
   recruiter_id?: string
   source?: CandidateSource | ''
+  applied_from?: string
+  applied_to?: string
+  page_size?: number
+}
+
+export interface BoardColumnParams extends BoardParams {
+  page?: number
 }

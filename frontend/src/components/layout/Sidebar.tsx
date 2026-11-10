@@ -14,6 +14,7 @@ import {
   KanbanIcon,
   KeyIcon,
   LogoutIcon,
+  ShieldIcon,
   UserIcon,
   UsersIcon,
 } from '../ui/icons'
@@ -37,6 +38,7 @@ const nav: NavItem[] = [
   { to: '/recruitment/candidates', label: 'Candidates', icon: ContactIcon, permission: 'recruitment:read' },
   { to: '/recruitment/applications', label: 'Applications', icon: ClipboardIcon, permission: 'recruitment:read' },
   { to: '/recruitment/pipeline', label: 'Pipeline', icon: KanbanIcon, permission: 'recruitment:read' },
+  { to: '/recruitment/privacy', label: 'Privacy', icon: ShieldIcon, permission: 'privacy:manage' },
   { to: '/profile', label: 'My profile', icon: UserIcon, needsEmployeeRecord: true },
 ]
 

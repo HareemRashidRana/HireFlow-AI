@@ -1,8 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar } from '../../../components/ui/Avatar'
 import { formatShortDate } from '../../../lib/format'
 import type { ApplicationListItem } from '../../../types/application'
 import { candidateSourceLabels } from '../lib/candidateOptions'
+import { fromState } from '../lib/navContext'
 import { StageBadge } from './StageBadge'
 
 const detailPath = (a: ApplicationListItem) => `/recruitment/applications/${a.id}`
@@ -14,6 +15,8 @@ const none = <span className="text-slate-400">—</span>
 
 export function ApplicationTable({ applications }: { applications: ApplicationListItem[] }) {
   const navigate = useNavigate()
+  const location = useLocation()
+  const state = fromState(location.pathname + location.search)
 
   return (
     <>
@@ -34,7 +37,7 @@ export function ApplicationTable({ applications }: { applications: ApplicationLi
             {applications.map((a) => (
               <tr
                 key={a.id}
-                onClick={() => navigate(detailPath(a))}
+                onClick={() => navigate(detailPath(a), { state })}
                 className="cursor-pointer transition-colors hover:bg-lavender-50/60"
               >
                 <td className="px-4 py-3.5 xl:px-6">
@@ -43,6 +46,7 @@ export function ApplicationTable({ applications }: { applications: ApplicationLi
                     <div className="min-w-0">
                       <Link
                         to={detailPath(a)}
+                        state={state}
                         onClick={(e) => e.stopPropagation()}
                         className="block truncate font-medium text-navy-900 hover:text-lavender-600"
                       >
@@ -82,7 +86,7 @@ export function ApplicationTable({ applications }: { applications: ApplicationLi
       <ul className="divide-y divide-slate-100 md:hidden">
         {applications.map((a) => (
           <li key={a.id}>
-            <Link to={detailPath(a)} className="block p-4 hover:bg-lavender-50/60">
+            <Link to={detailPath(a)} state={state} className="block p-4 hover:bg-lavender-50/60">
               <div className="flex items-start gap-3">
                 <Avatar initials={initials(a)} />
                 <div className="min-w-0 flex-1">
