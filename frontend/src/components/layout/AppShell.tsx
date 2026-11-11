@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '../../auth/useAuth'
 import { CloseIcon, MenuIcon } from '../ui/icons'
 import { Logo } from './Logo'
+import { panelFor } from './navigation'
+import { ProfileMenu } from './ProfileMenu'
 import { Sidebar } from './Sidebar'
 
 export function AppShell() {
   const { pathname } = useLocation()
+  const { user } = useAuth()
+  const panel = user ? panelFor(user.role) : null
   // The menu counts as open only on the page where it was opened, so navigating closes it.
   const [openAt, setOpenAt] = useState<string | null>(null)
   const menuOpen = openAt === pathname
@@ -20,22 +25,28 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar: the navigation of this person's own panel */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 lg:block">
         <Sidebar />
       </aside>
 
-      {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur lg:hidden">
-        <Logo />
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Open menu"
-          className="rounded-lg p-2 text-navy-900 hover:bg-lavender-100"
-        >
-          <MenuIcon />
-        </button>
+      {/* Top bar on every screen size: always visible, and it holds the account menu with Sign out */}
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-6 lg:ml-64 lg:px-10">
+        <div className="flex min-w-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+            className="rounded-lg p-2 text-navy-900 hover:bg-lavender-100 lg:hidden"
+          >
+            <MenuIcon />
+          </button>
+          <div className="lg:hidden">
+            <Logo />
+          </div>
+          {panel && <p className="hidden truncate text-sm font-medium text-slate-500 lg:block">{panel.title}</p>}
+        </div>
+        <ProfileMenu />
       </header>
 
       {/* Mobile drawer */}

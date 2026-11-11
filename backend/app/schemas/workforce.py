@@ -218,7 +218,10 @@ class SummaryRow(BaseModel):
 
 class MonthSummary(BaseModel):
     month: str
-    working_days_so_far: int  # working days in the month up to today (holidays excluded)
+    # FINISHED working days (before today): what "absent" is measured against
+    working_days_so_far: int
+    # Working days up to and including today: the basis for "days present of N"
+    working_days_through_today: int
     items: list[SummaryRow]
     total: int
     page: int

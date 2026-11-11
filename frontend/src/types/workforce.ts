@@ -91,7 +91,10 @@ export interface SummaryRow {
 
 export interface MonthSummary {
   month: string
+  /** FINISHED working days (before today): what "absent" is measured against. */
   working_days_so_far: number
+  /** Working days up to and including today: the basis for "days present of N". */
+  working_days_through_today: number
   items: SummaryRow[]
   total: number
   page: number

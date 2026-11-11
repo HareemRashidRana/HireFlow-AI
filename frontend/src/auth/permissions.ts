@@ -24,7 +24,7 @@ export type Permission =
   | 'analytics:read'
   | 'workforce:manage'
 
-const GRANTS: Record<Permission, readonly UserRole[]> = {
+export const GRANTS: Record<Permission, readonly UserRole[]> = {
   'employees:read': ['admin', 'hr_manager', 'recruiter'], // browse the whole directory
   'employees:write': ['admin', 'hr_manager'], // create and edit
   'employees:delete': ['admin'],
@@ -74,9 +74,71 @@ export const roleLabels: Record<UserRole, string> = {
   employee: 'Employee',
 }
 
-/** Where a signed-in user lands: recruitment staff see the dashboard, employees their own record. */
+/** Each role has its own landing page: its own panel. */
+export const roleHomes: Record<UserRole, string> = {
+  admin: '/admin',
+  hr_manager: '/hr',
+  recruiter: '/recruiter',
+  employee: '/employee',
+}
+
+/** Where a signed-in user lands. */
 export function homePath(user: AuthUser): string {
-  return can(user, 'analytics:read') ? '/dashboard' : '/profile'
+  return roleHomes[user.role]
+}
+
+interface RouteRule {
+  pattern: RegExp
+  roles?: readonly UserRole[]
+  permission?: Permission
+}
+
+/**
+ * Pages that only some people may open. This MIRRORS the guards in App.tsx (a test reads App.tsx and
+ * fails if the two disagree); it exists so that, after signing in, we never send someone to a page
+ * their role cannot open. The route guards and the server still enforce access: this only decides
+ * where to land. First match wins, so specific patterns come before general ones.
+ */
+export const ROUTE_RULES: readonly RouteRule[] = [
+  { pattern: /^\/dashboard$/, permission: 'analytics:read' },
+  { pattern: /^\/attendance\/(overview|manage)$/, permission: 'workforce:manage' },
+  { pattern: /^\/leave\/approvals$/, permission: 'workforce:manage' },
+  { pattern: /^\/settings\/work$/, permission: 'workforce:manage' },
+  { pattern: /^\/admin$/, roles: ['admin'] },
+  { pattern: /^\/admin\/(users|roles)$/, permission: 'users:manage' },
+  { pattern: /^\/admin\/settings$/, permission: 'workforce:manage' },
+  { pattern: /^\/hr(\/reports)?$/, roles: ['hr_manager'] },
+  { pattern: /^\/recruiter$/, roles: ['recruiter'] },
+  { pattern: /^\/employee$/, roles: ['employee'] },
+  { pattern: /^\/employees$/, permission: 'employees:read' },
+  { pattern: /^\/employees\/new$/, permission: 'employees:write' },
+  { pattern: /^\/employees\/[^/]+\/edit$/, permission: 'employees:write' },
+  { pattern: /^\/recruitment\/interviews(\/[^/]+)?$/, permission: 'interviews:use' },
+  { pattern: /^\/recruitment\/(jobs|candidates|applications)\/new$/, permission: 'recruitment:write' },
+  { pattern: /^\/recruitment\/(jobs|candidates)\/[^/]+\/edit$/, permission: 'recruitment:write' },
+  { pattern: /^\/recruitment\/(jobs|candidates|applications)(\/[^/]+)?$/, permission: 'recruitment:read' },
+  { pattern: /^\/recruitment\/pipeline$/, permission: 'recruitment:read' },
+  { pattern: /^\/recruitment\/privacy$/, permission: 'privacy:manage' },
+]
+
+/** Whether this person may open `path`. Pages with no rule are open to every signed-in user. */
+export function canOpenPath(user: AuthUser, path: string): boolean {
+  const clean = path.split(/[?#]/)[0].replace(/\/+$/, '') || '/'
+  const rule = ROUTE_RULES.find((r) => r.pattern.test(clean))
+  if (!rule) return true
+  if (rule.roles && !rule.roles.includes(user.role)) return false
+  if (rule.permission && !can(user, rule.permission)) return false
+  return true
+}
+
+/**
+ * Where to send someone right after they sign in. A page they were heading to is honoured only if
+ * their role can actually open it; otherwise (for example another role's dashboard) they land on
+ * their own home, never on an access-denied page.
+ */
+export function landingPath(user: AuthUser, requested: unknown): string {
+  const from = safeInternalPath(requested)
+  return from !== null && canOpenPath(user, from) ? from : homePath(user)
 }
 
 /** Only follow in-app paths ("/employees"), never "//evil.com" or "https://...". */

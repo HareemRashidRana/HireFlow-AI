@@ -141,6 +141,27 @@ describe('AttendancePage: check in and out', () => {
   })
 })
 
+describe('days present is shown against working days INCLUDING today', () => {
+  // Today's check-in counts as present, so "present of N" must use the through-today count: it can
+  // never read "8 of 7". (The finished-days count is a different number, used for absence.)
+  const summary = makeSummary({ working_days_so_far: 7, working_days_through_today: 8 })
+  summary.items[0].present_days = 8
+
+  it('the employee page says "of 8 working days so far, including today"', async () => {
+    api.mySummary.mockResolvedValue(summary)
+    renderAs(<AttendancePage />, { role: 'employee', ...staff })
+    expect(await screen.findByText('of 8 working days so far, including today')).toBeTruthy()
+    expect(screen.queryByText(/of 7 working days/)).toBeNull()
+  })
+
+  it('the history page uses the same basis', async () => {
+    api.mySummary.mockResolvedValue(summary)
+    renderAs(<AttendanceHistoryPage />, { role: 'employee', ...staff })
+    expect(await screen.findByText('of 8 working days so far')).toBeTruthy()
+    expect(screen.queryByText(/7 working days/)).toBeNull()
+  })
+})
+
 describe('AttendanceHistoryPage', () => {
   it('lists the month with flags, durations and the summary', async () => {
     api.mine.mockResolvedValue({ items: [makeRecord({ is_late: true }), makeRecord({ id: 'r2', work_date: '2026-03-03', check_out_at: null, worked_minutes: null, state: 'open' })], total: 2, page: 1, page_size: 15 })

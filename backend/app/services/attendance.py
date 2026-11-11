@@ -331,6 +331,15 @@ def month_summary(
         if through >= first
         else set()
     )
+    # Working days up to and INCLUDING today. This is the fair denominator for "days present",
+    # because today's check-in counts as present. (`elapsed` stays "finished days only": a day is
+    # never counted as missed until it has ended.)
+    through_today = min(last, today)
+    working_through_today = (
+        len(rules.working_dates(first, through_today, list(s.work_days), holidays))
+        if through_today >= first
+        else 0
+    )
     page_size = min(page_size, PAGE_MAX)
 
     in_month = and_(
@@ -389,6 +398,7 @@ def month_summary(
     return {
         "month": month,
         "working_days_so_far": len(elapsed),
+        "working_days_through_today": working_through_today,
         "items": items,
         "total": total,
         "page": page,

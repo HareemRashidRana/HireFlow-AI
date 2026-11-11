@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
-import { HomeRedirect, PublicOnly, RequireAuth, RequirePermission } from './auth/guards'
+import { HomeRedirect, PublicOnly, RequireAuth, RequirePermission, RequireRole } from './auth/guards'
 import { AppShell } from './components/layout/AppShell'
 import { ToastProvider } from './components/ui/Toast'
 import { ChangePasswordPage } from './features/auth/ChangePasswordPage'
@@ -22,6 +22,12 @@ import { CandidatesPage } from './features/recruitment/pages/CandidatesPage'
 import { JobCreatePage } from './features/recruitment/pages/JobCreatePage'
 import { JobDetailPage } from './features/recruitment/pages/JobDetailPage'
 import { JobEditPage } from './features/recruitment/pages/JobEditPage'
+import { AdminOverviewPage } from './features/panels/admin/AdminOverviewPage'
+import { RolesPage } from './features/panels/admin/RolesPage'
+import { UsersPage } from './features/panels/admin/UsersPage'
+import { EmployeeHomePage } from './features/panels/employee/EmployeeHomePage'
+import { HrHomePage, HrReportsPage } from './features/panels/hr/HrPages'
+import { RecruiterHomePage } from './features/panels/recruiter/RecruiterHomePage'
 import { AttendanceHistoryPage } from './features/workforce/pages/AttendanceHistoryPage'
 import { AttendanceManagePage } from './features/workforce/pages/AttendanceManagePage'
 import { AttendanceOverviewPage } from './features/workforce/pages/AttendanceOverviewPage'
@@ -68,6 +74,15 @@ function App() {
               <Route path="leave/balances" element={<LeaveBalancesPage />} />
               <Route path="leave/calendar" element={<LeaveCalendarPage />} />
               <Route path="settings/work" element={<RequirePermission permission="workforce:manage"><WorkSettingsPage /></RequirePermission>} />
+              {/* The four panels: each role has its own landing page and navigation (see navigation.ts). */}
+              <Route path="admin" element={<RequireRole roles={['admin']}><AdminOverviewPage /></RequireRole>} />
+              <Route path="admin/users" element={<RequirePermission permission="users:manage"><UsersPage /></RequirePermission>} />
+              <Route path="admin/roles" element={<RequirePermission permission="users:manage"><RolesPage /></RequirePermission>} />
+              <Route path="admin/settings" element={<RequirePermission permission="workforce:manage"><WorkSettingsPage /></RequirePermission>} />
+              <Route path="hr" element={<RequireRole roles={['hr_manager']}><HrHomePage /></RequireRole>} />
+              <Route path="hr/reports" element={<RequireRole roles={['hr_manager']}><HrReportsPage /></RequireRole>} />
+              <Route path="recruiter" element={<RequireRole roles={['recruiter']}><RecruiterHomePage /></RequireRole>} />
+              <Route path="employee" element={<RequireRole roles={['employee']}><EmployeeHomePage /></RequireRole>} />
               <Route path="profile" element={<ProfilePage />} />
 
               {/* Role-restricted. The API enforces the same rules; these just show a clear message. */}

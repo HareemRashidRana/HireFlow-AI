@@ -1,6 +1,6 @@
 # Recruitment Analytics and HR Dashboard
 
-The dashboard (`/dashboard`) is the landing page for Admin, HR Manager and Recruiter accounts. Every figure on it is calculated by the database from live HireFlow records. There is no sample data, no caching, and nothing on it can change a record.
+The dashboard (`/dashboard`) is open to Admin, HR Manager and Recruiter accounts. It is no longer the page you land on after signing in: each role has its own home (see [ROLE_PANELS.md](ROLE_PANELS.md)), and the dashboard is linked from each of those panels ("System reports" for the administrator, "Recruitment analytics" for HR and recruiters). Every figure on it is calculated by the database from live HireFlow records. There is no sample data, no caching, and nothing on it can change a record.
 
 Analytics are **aggregate counts only**. They never return a candidate's name, email, phone, notes, feedback or resume content, and they never rank or score people.
 
@@ -100,7 +100,7 @@ Query parameters for `/overview` and `/jobs`: `start`, `end` (dates, inclusive),
 | Recruiter | The same analytics |
 | Employee | None: 403 on every route, and no Dashboard link |
 
-Recruiters can already read every application, job and the employee directory in HireFlow, so analytics reveal nothing they cannot already see; there is no per-recruiter visibility restriction to preserve. Access is decided before any filter is read, so an employee cannot learn whether a job exists. Signing in sends recruitment staff to the dashboard and employees to their profile.
+Recruiters can already read every application, job and the employee directory in HireFlow, so analytics reveal nothing they cannot already see; there is no per-recruiter visibility restriction to preserve. Access is decided before any filter is read, so an employee cannot learn whether a job exists. Signing in sends each person to their own role's home page, not to the dashboard (see [ROLE_PANELS.md](ROLE_PANELS.md)).
 
 ## Query strategy
 

@@ -40,11 +40,11 @@ describe('workforce boundaries', () => {
     expect(api).not.toMatch(/method:\s*'DELETE'[^\n]*attendance/)
   })
 
-  it('only the app shell and the dashboard panel reference the workforce area', () => {
+  it('only the app shell, the dashboard panel and the role panels reference the workforce area', () => {
     const users = sources
       .filter(([p, s]) => !p.startsWith('features/workforce/') && p !== 'api/workforce.ts' && p !== 'types/workforce.ts' && /(features\/workforce\/|api\/workforce|types\/workforce)/.test(s))
       .map(([p]) => p)
       .sort()
-    expect(users).toEqual(['App.tsx', 'features/dashboard/components/WorkforcePanel.tsx'])
+    expect(users.filter((p) => !p.startsWith('features/panels/'))).toEqual(['App.tsx', 'features/dashboard/components/WorkforcePanel.tsx'])
   })
 })

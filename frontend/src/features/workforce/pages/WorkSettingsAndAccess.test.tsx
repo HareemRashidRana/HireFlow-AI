@@ -192,23 +192,35 @@ describe('WorkforcePanel on the dashboard', () => {
 describe('who sees what', () => {
   const links = () => [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')].map((a) => a.textContent?.trim())
 
-  it('an employee gets their own attendance, leave and profile, and no HR or recruitment links', () => {
+  it('an employee gets their own portal and no HR, recruitment or admin links', () => {
     renderAs(<Sidebar />, { role: 'employee' })
-    expect(links()).toEqual(['Attendance', 'Leave', 'My profile'])
+    expect(links()).toEqual(['Home', 'Attendance', 'Leave', 'My profile'])
   })
 
-  it.each(['admin', 'hr_manager'] as const)('%s also gets the work schedule page, even without an employee record of their own', (role) => {
-    renderAs(<Sidebar />, { role })
-    expect(links()).toEqual(expect.arrayContaining(['Dashboard', 'Attendance', 'Leave', 'Work schedule']))
+  it('the HR panel has the attendance, leave and configuration pages, even without an employee record of its own', () => {
+    renderAs(<Sidebar />, { role: 'hr_manager' })
+    expect(links()).toEqual(expect.arrayContaining(['HR dashboard', 'Employees', 'Today & month', 'Records & corrections', 'Approvals', 'Balances', 'Leave calendar', 'Work schedule & holidays', 'HR reports']))
+    expect(links()).not.toContain('My attendance')
   })
 
-  it('a recruiter has attendance and leave only when linked to an employee, and never the work schedule', () => {
+  it('the admin panel has company settings (the same schedule page) but not the HR work', () => {
+    renderAs(<Sidebar />, { role: 'admin' })
+    expect(links()).toContain('Company settings')
+    expect(links()).not.toContain('Approvals')
+  })
+
+  it('a linked HR user also gets their own attendance, leave and profile', () => {
+    renderAs(<Sidebar />, { role: 'hr_manager', employeeId: 'emp-1' })
+    expect(links()).toEqual(expect.arrayContaining(['My attendance', 'My leave', 'My profile']))
+  })
+
+  it('a recruiter has attendance and leave only when linked to an employee, and never HR pages', () => {
     const { unmount } = renderAs(<Sidebar />, { role: 'recruiter' })
-    expect(links()).not.toContain('Attendance')
+    expect(links()).not.toContain('My attendance')
     unmount()
     renderAs(<Sidebar />, { role: 'recruiter', employeeId: 'emp-1' })
-    expect(links()).toEqual(expect.arrayContaining(['Attendance', 'Leave']))
-    expect(links()).not.toContain('Work schedule')
+    expect(links()).toEqual(expect.arrayContaining(['My attendance', 'My leave']))
+    for (const hr of ['Work schedule & holidays', 'Approvals', 'Records & corrections']) expect(links()).not.toContain(hr)
   })
 
   it.each(['employee', 'recruiter'] as const)('%s is shown an access message for HR pages', (role) => {
@@ -222,8 +234,8 @@ describe('who sees what', () => {
     expect(await screen.findByRole('heading', { name: 'Work schedule' })).toBeTruthy()
   })
 
-  it('everyone still lands where they did before', () => {
-    expect(homePath(makeUser('admin'))).toBe('/dashboard')
-    expect(homePath(makeUser('employee'))).toBe('/profile')
+  it('each role lands on its own panel', () => {
+    expect(homePath(makeUser('admin'))).toBe('/admin')
+    expect(homePath(makeUser('employee'))).toBe('/employee')
   })
 })

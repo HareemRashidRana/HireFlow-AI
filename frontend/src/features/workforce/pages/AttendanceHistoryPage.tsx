@@ -57,7 +57,7 @@ export function AttendanceHistoryPage() {
                 </p>
               ) : row ? (
                 <dl aria-label={`Summary for ${monthLabel(month)}`} className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-                  <Stat label="Days present" value={row.present_days} hint={`${summary.data?.working_days_so_far ?? 0} working days finished`} />
+                  <Stat label="Days present" value={row.present_days} hint={`of ${summary.data?.working_days_through_today ?? 0} working days so far`} />
                   <Stat label="Late" value={row.late_days} />
                   <Stat label="Left early" value={row.early_days} />
                   <Stat label="Absent" value={row.absent_days} hint={row.leave_days ? `${row.leave_days} on approved leave` : 'Not counting approved leave'} />

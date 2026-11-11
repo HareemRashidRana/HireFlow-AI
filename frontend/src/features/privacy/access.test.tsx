@@ -33,14 +33,20 @@ describe('route guard for the privacy page', () => {
 describe('sidebar', () => {
   const labels = () => [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')].map((a) => a.textContent?.trim())
 
-  it.each(['admin', 'hr_manager'] as const)('%s sees Privacy, linking to the privacy page', (role: UserRole) => {
-    renderAs(<Sidebar />, { role })
-    expect(labels()).toContain('Privacy')
-    expect(screen.getByRole('link', { name: 'Privacy' }).getAttribute('href')).toBe('/recruitment/privacy')
+  it('the administrator panel lists Data privacy, linking to the privacy page', () => {
+    renderAs(<Sidebar />, { role: 'admin' })
+    expect(labels()).toContain('Data privacy')
+    expect(screen.getByRole('link', { name: 'Data privacy' }).getAttribute('href')).toBe('/recruitment/privacy')
   })
 
-  it.each(['recruiter', 'employee'] as const)('%s does not see Privacy', (role: UserRole) => {
+  it('the HR panel lists it too, linking to the same page', () => {
+    renderAs(<Sidebar />, { role: 'hr_manager' })
+    expect(labels()).toContain('Data privacy')
+    expect(screen.getByRole('link', { name: 'Data privacy' }).getAttribute('href')).toBe('/recruitment/privacy')
+  })
+
+  it.each(['recruiter', 'employee'] as const)('%s panel does not list it (the permission is unchanged)', (role: UserRole) => {
     renderAs(<Sidebar />, { role })
-    expect(labels()).not.toContain('Privacy')
+    expect(labels()).not.toContain('Data privacy')
   })
 })

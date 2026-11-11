@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { AccessDenied, ConnectionProblem, SplashScreen } from '../components/layout/Screens'
-import { homePath, safeInternalPath } from './permissions'
+import { homePath, landingPath } from './permissions'
+import type { UserRole } from '../types/auth'
 import type { Permission } from './permissions'
 import { useAuth } from './useAuth'
 
@@ -51,8 +52,8 @@ export function PublicOnly({ children }: { children: ReactNode }) {
 
   if (auth.status === 'authenticated' && auth.user) {
     if (auth.user.must_change_password) return <Navigate to="/change-password" replace />
-    const from = safeInternalPath((location.state as { from?: unknown } | null)?.from)
-    return <Navigate to={from ?? homePath(auth.user)} replace />
+    // Only go back to the requested page if THIS person's role can open it; otherwise their own home.
+    return <Navigate to={landingPath(auth.user, (location.state as { from?: unknown } | null)?.from)} replace />
   }
   return children
 }
@@ -61,6 +62,15 @@ export function PublicOnly({ children }: { children: ReactNode }) {
 export function RequirePermission({ permission, children }: { permission: Permission; children: ReactNode }) {
   const { can } = useAuth()
   return can(permission) ? children : <AccessDenied />
+}
+
+/**
+ * A panel's own landing pages: only people in that role may open them. (Their data routes, such as
+ * the user list, are separately protected by the server.)
+ */
+export function RequireRole({ roles, children }: { roles: UserRole[]; children: ReactNode }) {
+  const { user } = useAuth()
+  return user && roles.includes(user.role) ? children : <AccessDenied />
 }
 
 /** "/" sends each role to its own home page. */

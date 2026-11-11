@@ -182,6 +182,26 @@ export const KanbanIcon = (p: IconProps) => (
   </Svg>
 )
 
+export const HomeIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 11 12 4l8 7M6 10v9.5h12V10" />
+    <path d="M10 19.5V14h4v5.5" />
+  </Svg>
+)
+
+export const ChartIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 20V4M4 20h16" />
+    <path d="M8 16v-4M12 16V8M16 16v-6" />
+  </Svg>
+)
+
+export const ChevronDownIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m6 9 6 6 6-6" />
+  </Svg>
+)
+
 export const DashboardIcon = (p: IconProps) => (
   <Svg {...p}>
     <rect x="3.5" y="3.5" width="7" height="8.5" rx="1.8" />

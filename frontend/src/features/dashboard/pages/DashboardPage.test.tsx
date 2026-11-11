@@ -198,23 +198,26 @@ describe('who can see it', () => {
     expect(api.filterOptions).not.toHaveBeenCalled()
   })
 
-  const navLabels = () => [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')].map((a) => a.textContent?.trim())
-
-  it.each(['admin', 'hr_manager', 'recruiter'] as const)('%s has Dashboard first in the menu, with the rest intact', (role) => {
-    renderAs(<Sidebar />, { role })
-    const labels = navLabels()
-    expect(labels[0]).toBe('Dashboard')
-    for (const existing of ['Employees', 'Jobs', 'Candidates', 'Applications', 'Pipeline', 'Interviews']) expect(labels).toContain(existing)
+  it('the reports link is called System reports for the admin and Recruitment analytics for the recruiter', () => {
+    const labels = () => [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')].map((a) => a.textContent?.trim())
+    const { unmount } = renderAs(<Sidebar />, { role: 'admin' })
+    expect(labels()).toContain('System reports')
+    unmount()
+    renderAs(<Sidebar />, { role: 'recruiter' })
+    expect(labels()).toContain('Recruitment analytics')
   })
 
-  it('the employee role has no Dashboard link', () => {
+  it('the employee role has no link to it', () => {
     renderAs(<Sidebar />, { role: 'employee' })
-    expect(navLabels()).not.toContain('Dashboard')
+    const links = [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')]
+    expect(links.some((a) => a.getAttribute('href') === '/dashboard')).toBe(false)
   })
 
-  it('signing in lands recruitment staff on the dashboard and employees on their profile', () => {
-    for (const role of ['admin', 'hr_manager', 'recruiter'] as const) expect(homePath(makeUser(role))).toBe('/dashboard')
-    expect(homePath(makeUser('employee'))).toBe('/profile')
+  it('signing in lands each role on its own panel', () => {
+    expect(homePath(makeUser('admin'))).toBe('/admin')
+    expect(homePath(makeUser('hr_manager'))).toBe('/hr')
+    expect(homePath(makeUser('recruiter'))).toBe('/recruiter')
+    expect(homePath(makeUser('employee'))).toBe('/employee')
   })
 })
 

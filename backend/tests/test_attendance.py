@@ -278,6 +278,60 @@ class TestSummaries:
         assert s["working_days_so_far"] == 0 and s["totals"]["absent_days"] == 0
 
 
+class TestWorkingDaysDenominator:
+    """"Days present" includes today's check-in, so its denominator must include today too. The
+    count of FINISHED days (used for absence) is a different number and must not move."""
+
+    def summary(self, client, month, **extra):
+        return client.get(f"{ATT}/me/summary", params={"month": month, **extra}).json()
+
+    def test_today_is_in_the_present_of_n_basis_but_not_in_the_finished_days(self, emp, wclock):
+        for d in (2, 3, 4):  # Mon, Tue, Wed
+            wclock.set(f"2026-03-{d:02d}T09:00:00Z")
+            emp.client.post(f"{ATT}/check-in")
+            wclock.set(f"2026-03-{d:02d}T17:00:00Z")
+            emp.client.post(f"{ATT}/check-out")
+        wclock.set("2026-03-04T18:00:00Z")  # Wednesday evening: today is checked in and out
+        s = self.summary(emp.client, "2026-03")
+        assert s["items"][0]["present_days"] == 3
+        assert s["working_days_so_far"] == 2  # Mon and Tue are over; Wednesday is not "finished"
+        assert s["working_days_through_today"] == 3
+        assert s["items"][0]["present_days"] <= s["working_days_through_today"]
+        assert s["items"][0]["absent_days"] == 0  # unchanged by the new number
+
+    def test_present_never_reads_as_more_than_the_working_days_so_far(self, emp, wclock):
+        wclock.set("2026-03-04T09:00:00Z")  # only today
+        emp.client.post(f"{ATT}/check-in")
+        s = self.summary(emp.client, "2026-03")
+        assert (s["items"][0]["present_days"], s["working_days_so_far"], s["working_days_through_today"]) == (1, 2, 3)
+
+    def test_on_a_weekend_today_adds_nothing(self, emp, wclock):
+        wclock.set("2026-03-07T12:00:00Z")  # Saturday
+        s = self.summary(emp.client, "2026-03")
+        assert s["working_days_so_far"] == 5 and s["working_days_through_today"] == 5
+
+    def test_on_the_first_working_day_nothing_is_finished_yet_but_today_counts(self, emp, wclock):
+        wclock.set("2026-03-02T10:00:00Z")  # Monday the 2nd
+        s = self.summary(emp.client, "2026-03")
+        assert s["working_days_so_far"] == 0 and s["working_days_through_today"] == 1
+
+    def test_a_past_month_has_every_working_day_in_both(self, emp, wclock):
+        wclock.set("2026-04-15T12:00:00Z")
+        s = self.summary(emp.client, "2026-03")
+        assert s["working_days_so_far"] == s["working_days_through_today"] == 22
+
+    def test_a_future_month_has_none(self, emp, wclock):
+        wclock.set("2026-03-04T12:00:00Z")
+        s = self.summary(emp.client, "2026-09")
+        assert s["working_days_so_far"] == 0 and s["working_days_through_today"] == 0
+
+    def test_hr_sees_the_same_two_numbers(self, person, wclock):
+        hr = person(UserRole.HR_MANAGER, "Hr")
+        wclock.set("2026-03-04T12:00:00Z")
+        s = hr.client.get(f"{ATT}/summary", params={"month": "2026-03"}).json()
+        assert (s["working_days_so_far"], s["working_days_through_today"]) == (2, 3)
+
+
 class TestStats:
     def test_the_days_numbers(self, person, wclock, types, session_factory):
         from tests.workforce_helpers import grant

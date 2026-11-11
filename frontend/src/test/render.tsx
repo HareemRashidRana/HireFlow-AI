@@ -18,13 +18,15 @@ interface Options {
   role?: UserRole
   /** The employee record the login is linked to. Default none; attendance and leave self-service need one. */
   employeeId?: string | null
+  /** Replace the sign-out function, to watch it being called or to make it fail. */
+  logout?: () => Promise<void>
 }
 
 /**
  * Renders an element inside a router, a signed-in user (any role) and the toast provider.
  * Navigating anywhere that is not `path` renders a location probe instead of a blank page.
  */
-export function renderAs(ui: ReactElement, { path = '*', url = '/', role = 'recruiter', employeeId = null }: Options = {}) {
+export function renderAs(ui: ReactElement, { path = '*', url = '/', role = 'recruiter', employeeId = null, logout }: Options = {}) {
   const user = makeUser(role, { employee_id: employeeId })
   const auth: AuthContextValue = {
     status: 'authenticated',
@@ -32,7 +34,7 @@ export function renderAs(ui: ReactElement, { path = '*', url = '/', role = 'recr
     notice: null,
     error: null,
     login: vi.fn(),
-    logout: vi.fn(),
+    logout: logout ?? vi.fn(),
     retry: vi.fn(),
     can: (permission) => can(user, permission),
   }

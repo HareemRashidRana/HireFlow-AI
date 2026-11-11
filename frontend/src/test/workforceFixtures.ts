@@ -23,7 +23,7 @@ export const makeToday = (over: Partial<TodayStatus> = {}): TodayStatus => ({
 })
 
 export const makeSummary = (over: Partial<MonthSummary> = {}): MonthSummary => ({
-  month: '2026-03', working_days_so_far: 10,
+  month: '2026-03', working_days_so_far: 10, working_days_through_today: 11,
   items: [{ employee: me, present_days: 8, late_days: 2, early_days: 1, worked_minutes: 3840, expected_days: 10, leave_days: 1, absent_days: 1 }],
   total: 1, page: 1, page_size: 25, totals: {}, ...over,
 })

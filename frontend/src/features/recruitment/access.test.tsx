@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { RequirePermission } from '../../auth/guards'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { renderAs } from '../../test/render'
-import type { UserRole } from '../../types/auth'
 
 // The sidebar polls the API health endpoint; keep that out of these tests.
 vi.mock('../../hooks/useApiHealth', () => ({ useApiHealth: () => 'online' }))
@@ -48,30 +47,45 @@ describe('sidebar navigation by role', () => {
   const navLabels = () =>
     [...screen.getByRole('navigation', { name: 'Main' }).querySelectorAll('a')].map((a) => a.textContent?.trim())
 
-  it.each(['admin', 'hr_manager', 'recruiter'] as const)('%s sees Employees, Jobs, Candidates, Applications and Pipeline', (role: UserRole) => {
-    renderAs(<Sidebar />, { role })
-    expect(navLabels()).toEqual(expect.arrayContaining(['Employees', 'Jobs', 'Candidates', 'Applications', 'Pipeline']))
-  })
-
-  it('the Candidates link goes to the candidate directory', () => {
+  it('the recruiter panel lists the hiring work, and nothing from HR or administration', () => {
     renderAs(<Sidebar />, { role: 'recruiter' })
-    expect(screen.getByRole('link', { name: 'Candidates' }).getAttribute('href')).toBe('/recruitment/candidates')
+    expect(navLabels()).toEqual(['Recruitment dashboard', 'Job postings', 'Candidates & resumes', 'Applications', 'Hiring pipeline', 'Interviews', 'Recruitment analytics'])
   })
 
-  it('the Jobs link goes to the jobs list', () => {
+  it('the recruitment links go to their pages', () => {
     renderAs(<Sidebar />, { role: 'recruiter' })
-    const jobs = screen.getByRole('link', { name: 'Jobs' })
-    expect(jobs.getAttribute('href')).toBe('/recruitment/jobs')
+    const href = (name: string) => screen.getByRole('link', { name }).getAttribute('href')
+    expect(href('Job postings')).toBe('/recruitment/jobs')
+    expect(href('Candidates & resumes')).toBe('/recruitment/candidates')
+    expect(href('Applications')).toBe('/recruitment/applications')
+    expect(href('Hiring pipeline')).toBe('/recruitment/pipeline')
+    expect(href('Interviews')).toBe('/recruitment/interviews')
   })
 
-  it('the Applications and Pipeline links go to their pages', () => {
-    renderAs(<Sidebar />, { role: 'recruiter' })
-    expect(screen.getByRole('link', { name: 'Applications' }).getAttribute('href')).toBe('/recruitment/applications')
-    expect(screen.getByRole('link', { name: 'Pipeline' }).getAttribute('href')).toBe('/recruitment/pipeline')
+  it('the admin panel has a Recruitment group with every recruitment page', () => {
+    renderAs(<Sidebar />, { role: 'admin' })
+    expect(navLabels()).toEqual(expect.arrayContaining(['Job postings', 'Candidates & resumes', 'Applications', 'Hiring pipeline', 'Interviews']))
   })
 
-  it('employees see none of the recruitment links (Jobs, Candidates, Applications, Pipeline); only their own attendance, leave and profile', () => {
+  it('the HR panel has jobs, candidates, hiring decisions and interviews, and keeps its own work first', () => {
+    renderAs(<Sidebar />, { role: 'hr_manager' })
+    expect(navLabels()).toEqual(expect.arrayContaining(['Job postings', 'Candidates & resumes', 'Hiring decisions', 'Interviews']))
+    expect(navLabels()[0]).toBe('HR dashboard')
+  })
+
+  it('each recruitment link goes to the right page for admin and HR', () => {
+    for (const role of ['admin', 'hr_manager'] as const) {
+      const { unmount } = renderAs(<Sidebar />, { role })
+      const href = (name: string) => screen.getByRole('link', { name }).getAttribute('href')
+      expect(href('Job postings')).toBe('/recruitment/jobs')
+      expect(href('Candidates & resumes')).toBe('/recruitment/candidates')
+      expect(href('Interviews')).toBe('/recruitment/interviews')
+      unmount()
+    }
+  })
+
+  it('employees see none of the recruitment links; only their own portal', () => {
     renderAs(<Sidebar />, { role: 'employee' })
-    expect(navLabels()).toEqual(['Attendance', 'Leave', 'My profile'])
+    expect(navLabels()).toEqual(['Home', 'Attendance', 'Leave', 'My profile'])
   })
 })
