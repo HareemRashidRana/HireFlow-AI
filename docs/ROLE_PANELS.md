@@ -55,6 +55,36 @@ Not every allowed page is a menu item: detail pages are reached from lists, and 
 still open the employee directory by its address (the API permission, which the job form's
 hiring-manager picker relies on, is unchanged and is not shown in the recruiter menu).
 
+## Permission matrix
+
+The permissions below are what the app grants each role (✔ = allowed). The server enforces them on
+every request; the front end uses the same table only to decide what to show.
+
+| Permission | Admin | HR Manager | Recruiter | Employee |
+|---|:-:|:-:|:-:|:-:|
+| View employees (`employees:read`) | ✔ | ✔ | ✔ | own record only |
+| Create / edit employees | ✔ | ✔ | | |
+| Delete employees | ✔ | | | |
+| Manage user accounts and roles | ✔ | | | |
+| View / edit recruitment (jobs, candidates, applications) | ✔ | ✔ | ✔ | |
+| Delete draft jobs | ✔ | | | |
+| Delete a candidate | ✔ | ✔ | | |
+| Assign applications | ✔ | ✔ | | |
+| Mark an application hired / reopen it | ✔ | ✔ | | |
+| Upload and review resumes | ✔ | ✔ | ✔ | |
+| Delete resumes | ✔ | ✔ | | |
+| Use Requirements Coverage | ✔ | ✔ | ✔ | |
+| Schedule and manage interviews (feedback is written only by an assigned interviewer; HR and admins read submitted feedback) | ✔ | ✔ | ✔ | |
+| Recruitment analytics | ✔ | ✔ | ✔ | |
+| Attendance corrections, leave approvals and balances, work schedule | ✔ | ✔ | | |
+| Data privacy tools (audit, export, anonymise, retention review) | ✔ | ✔ | | |
+| Purge candidate data permanently (also needs `PRIVACY_PURGE_ENABLED`) | ✔ | | | |
+| Own attendance, leave and profile | linked login | linked login | linked login | ✔ |
+
+Extra rules that no role can bypass: nobody approves their own leave request, an administrator cannot
+change the role of, or deactivate, their own account, and an Employee can only ever read their own
+attendance, leave and profile.
+
 ## Top bar and sign-out
 
 The top bar is on every screen size. The account menu in it shows who is signed in and offers *My

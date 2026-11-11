@@ -2,7 +2,7 @@
 
 Employees request leave, HR decides, and balances are kept in an append-only ledger so every day taken or given back can be traced to a person and a reason.
 
-> **Deployment note.** Needs migration `99db234e646c` (see [ATTENDANCE.md](ATTENDANCE.md)). It seeds five leave types (annual 14 days, sick 10, casual 8, unpaid, other) and the default working rules, but **no balances**: HR grants them from the Balances page.
+> **Database note.** Needs migration `99db234e646c` (see [ATTENDANCE.md](ATTENDANCE.md)). It seeds five leave types (annual 14 days, sick 10, casual 8, unpaid, other) and the default working rules, but **no balances**: HR grants them from the Balances page.
 
 ## Who can do what
 

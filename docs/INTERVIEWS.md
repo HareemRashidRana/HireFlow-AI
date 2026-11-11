@@ -2,7 +2,7 @@
 
 Interviews are scheduling plus human-written feedback. They never rank, score or filter candidates, never use AI, and never change an application's stage. Moving a candidate between stages stays a separate, deliberate action on the pipeline.
 
-> **Deployment note.** This module needs migration `d34d0c31088c` (parent `e06ccfa51fe7`). Apply the migration **before** running the new backend code: the anonymization and export paths read the new tables. Back up the database first.
+> **Database note.** This module is created by migration `d34d0c31088c` (parent `e06ccfa51fe7`). When upgrading an existing database, apply the migration **before** running the newer backend code: the anonymization and export paths read the new tables. Back up the database first. See [DATABASE.md](DATABASE.md).
 
 ## Who can use it
 

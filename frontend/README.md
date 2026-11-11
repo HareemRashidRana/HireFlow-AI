@@ -1,32 +1,34 @@
-# React + TypeScript + Vite
+# HireFlow AI: frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The web interface of HireFlow AI: a React single-page app that talks to the FastAPI backend in `../backend`.
 
-Currently, two official plugins are available:
+**Stack:** React 19, TypeScript, Vite, Tailwind CSS v4, React Router. Tests: Vitest and Testing Library. Lint: oxlint.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Commands
 
-## React Compiler
+Run these in this folder. You need Node.js 22.12 or newer.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Command | What it does |
+|---|---|
+| `npm install` | Install dependencies |
+| `npm run dev` | Start the dev server at http://localhost:5173 (proxies `/api` to the backend on port 8000) |
+| `npm test` | Run the Vitest suite |
+| `npm run lint` | Run oxlint |
+| `npx tsc -b` | Type-check |
+| `npm run build` | Type-check and create a production build in `dist/` |
 
-## Expanding the Oxlint configuration
+## Structure
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+src/
+  api/          typed API client (one place for fetch, errors, token refresh)
+  auth/         session handling, roles and permissions, route guards
+  components/   shared UI (layout, navigation, form controls)
+  features/     one folder per module: auth, employees, recruitment (incl. resumes,
+                screening, interviews), workforce (attendance and leave), privacy,
+                dashboard, panels (role home pages)
+  hooks/ lib/ types/   shared hooks, helpers and types
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The backend must be running for the app to work. See the [root README](../README.md) and
+[docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md) for the full setup.

@@ -2,7 +2,7 @@
 
 Employees check in and out, see their own history, and HR sees everyone's, adds missing records and corrects mistakes. Nothing is invented: a day nobody checked in has no record, and absence is calculated from the calendar.
 
-> **Deployment note.** This module (with leave) needs migration `99db234e646c`, parent `d34d0c31088c`. It creates eight tables and inserts the default working rules and five leave types; it changes no existing table. Take a backup, apply the migration, **then** restart the backend. Until it is applied the new pages show a clear error and everything else keeps working.
+> **Database note.** This module (with leave) is created by migration `99db234e646c`, parent `d34d0c31088c`. It creates eight tables and inserts the default working rules and five leave types; it changes no existing table. When upgrading an existing database, take a backup, apply the migration, **then** restart the backend. Until it is applied the new pages show a clear error and everything else keeps working. See [DATABASE.md](DATABASE.md).
 
 ## Who can do what
 
